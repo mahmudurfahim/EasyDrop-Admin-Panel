@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EasyDrop Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--c:#00bcd4;--cd:#00838f;--ink:#0b2f35;--bg:#f2fafb;--line:#d5eaed;--side:#06353c;--bad:#c93b3b;--ok:#17855c;--warn:#a87400;--mut:#4c7279}
+*{box-sizing:border-box}
+body{margin:0;font:14px/1.5 Manrope,system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+.app{display:grid;grid-template-columns:210px 1fr;min-height:100vh}
+aside{background:var(--side);color:#cfeff3;padding:20px 12px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column}
+aside h3{margin:0 8px 20px;font-size:20px;font-weight:800;color:#fff}aside h3 span{color:var(--c)}
+nav a{display:block;padding:9px 12px;border-radius:8px;color:#cfeff3;cursor:pointer;margin-bottom:2px}
+nav a:hover{background:#0b4750}nav a.on{background:var(--c);color:#04282d;font-weight:600}
+.side-b{margin-top:auto;font-size:12px;padding:0 8px}.side-b a{color:#8fd8e2;display:block;margin:4px 0;cursor:pointer}
+main{padding:28px;max-width:1150px;width:100%}
+h1{font-size:24px;margin:0 0 18px}h2{font-size:16px;margin:26px 0 10px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));border:1px solid var(--line);background:#fff;border-radius:10px}
+.stats div{padding:16px 18px;border-right:1px solid var(--line);color:var(--mut)}.stats div:last-child{border:0}
+.stats b{display:block;font-size:26px;color:var(--cd)}
+.bar{display:grid;grid-template-columns:100px 1fr 30px;gap:10px;align-items:center;margin:6px 0}
+.bar div{background:#dff3f6;border-radius:6px;height:10px}.bar i{display:block;height:10px;background:var(--c);border-radius:6px}
+.tw{overflow-x:auto;background:#fff;border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;min-width:640px}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-weight:600;color:var(--mut);background:#f7fcfd}tr:last-child td{border:0}
+button{font:inherit;font-weight:600;background:var(--c);color:#04282d;border:0;border-radius:7px;padding:6px 12px;cursor:pointer;margin:2px 4px 2px 0}
+button:hover{background:#26cbe0}button.g{background:#e3f1f3;color:var(--ink)}button.r{background:#fbe5e5;color:var(--bad)}button:disabled{opacity:.5;cursor:wait}
+button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid var(--cd);outline-offset:2px}
+.b{padding:2px 9px;border-radius:99px;font-size:12px;font-weight:600}
+.b.w{background:#fff3d1;color:var(--warn)}.b.i{background:#d9f5f9;color:var(--cd)}.b.g{background:#dcf5e9;color:var(--ok)}.b.r{background:#fbe5e5;color:var(--bad)}
+input,select,textarea{font:inherit;padding:7px 10px;border:1px solid var(--line);border-radius:7px;background:#fff;width:100%}
+.top{display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap}.top select,.top input{width:auto}
+.empty,.load{color:#6a9097;padding:14px}.err{color:var(--bad);padding:14px;background:#fff;border:1px solid var(--line);border-radius:10px}
+dialog{border:0;border-radius:12px;padding:22px;width:min(460px,92vw);max-height:90vh;overflow:auto}dialog::backdrop{background:#06353c99}
+dialog label{display:block;margin:10px 0;font-weight:600}dialog h2{margin-top:0}.row{display:flex;justify-content:flex-end;margin-top:14px;flex-wrap:wrap}
+.kv{display:grid;grid-template-columns:110px 1fr;gap:4px 10px;margin:8px 0}.kv span{color:var(--mut)}
+.note{border-left:3px solid var(--c);padding:2px 10px;margin:6px 0;background:#f7fcfd}.note small{color:var(--mut)}
+#login{position:fixed;inset:0;background:var(--side);display:grid;place-items:center;z-index:9}
+#login form{background:#fff;padding:28px;border-radius:14px;width:min(340px,92vw)}#login h1{color:var(--cd)}#login input{margin-bottom:10px}
+#lerr{color:var(--bad);min-height:20px;margin-bottom:6px}
+#toast{position:fixed;bottom:20px;left:50%;transform:translate(-50%,80px);background:var(--ink);color:#fff;padding:10px 18px;border-radius:8px;transition:transform .2s;z-index:20;max-width:90vw}
+#toast.show{transform:translate(-50%,0)}#toast.bad{background:var(--bad)}
+@media(max-width:800px){.app{grid-template-columns:1fr}aside{position:static;height:auto;padding:10px}aside h3{margin-bottom:8px}nav{display:flex;overflow-x:auto}nav a{white-space:nowrap}.side-b{display:none}main{padding:16px}}
+@media(prefers-reduced-motion:reduce){#toast{transition:none}}
+</style></head>
+<body>
+<div id="login"><form id="lf">
+<h1>EasyDrop Admin</h1><div id="lerr" role="alert"></div>
+<input id="lu" placeholder="Admin username" autocomplete="username" aria-label="Username" required>
+<input id="lp" type="password" placeholder="Password" autocomplete="current-password" aria-label="Password" required>
+<button id="lb" style="width:100%;padding:9px">Log in</button></form></div>
+<div class="app"><aside><h3>Easy<span>Drop</span></h3><nav>
+<a data-v="dash">Dashboard</a><a data-v="orders">Orders</a><a data-v="products">Products</a><a data-v="cats">Categories</a>
+<a data-v="resellers">Resellers</a><a data-v="wd">Withdrawals</a><a data-v="settings">Settings</a></nav>
+<div class="side-b"><a id="dj" target="_blank" rel="noopener">Django admin (photos)</a><a id="lo">Log out</a></div></aside>
+<main></main></div>
+<dialog id="dlg"></dialog><div id="toast"></div>
+<script>
+// Set this to your Render service. Everything below uses it.
+const HOST="https://easydrop-api.onrender.com",API=HOST+"/api";
+const ZONE={inside_dhaka:"Inside Dhaka",sub_dhaka:"Sub Dhaka",outside_dhaka:"Outside Dhaka"};
+const ST=["Pending","Confirmed","Shipped","Delivered","Cancelled","Returned","NeedsReview"];
+const $=s=>document.querySelector(s),J=a=>a.join(""),money=n=>"৳"+Number(n||0).toLocaleString("en-IN");
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const dt=s=>s?new Date(s).toLocaleString("en-GB",{dateStyle:"medium",timeStyle:"short"}):"";
+const store={get:k=>{try{return localStorage.getItem(k)||""}catch{return ""}},set:(k,v)=>{try{v?localStorage.setItem(k,v):localStorage.removeItem(k)}catch{}}};
+let view="dash",flt="All",cache={cats:[],orders:[]};
+
+// ---------- API ----------
+async function raw(path,o={},tok){
+ const h={"Content-Type":"application/json"};if(tok)h.Authorization="Bearer "+tok;
+ const r=await fetch(API+path,{method:o.method||"GET",headers:h,body:o.body?JSON.stringify(o.body):undefined});
+ let d=null;try{d=await r.json()}catch{}
+ return{r,d}}
+function msg(d,r){if(!d)return"Error "+r.status;if(d.error)return d.error;if(d.detail)return d.detail;
+ return Object.entries(d).map(([k,v])=>`${k}: ${[].concat(v).join(" ")}`).join(" | ")||"Error "+r.status}
+async function api(path,o){
+ let{r,d}=await raw(path,o,store.get("at"));
+ if(r.status==401&&store.get("rt")){const x=await raw("/auth/refresh/",{method:"POST",body:{refresh:store.get("rt")}});
+  if(x.r.ok){store.set("at",x.d.access);({r,d}=await raw(path,o,x.d.access))}else{logout();throw Error("Session expired. Log in again.")}}
+ if(r.status==401){logout();throw Error("Session expired. Log in again.")}
+ if(!r.ok)throw Error(msg(d,r));return d}
+const toast=(t,bad)=>{const e=$("#toast");e.textContent=t;e.className="show"+(bad?" bad":"");clearTimeout(toast.t);toast.t=setTimeout(()=>e.className="",bad?4000:2200)};
+async function run(fn,ok){try{const x=await fn();if(ok)toast(ok);return x}catch(e){toast(e.message==="Failed to fetch"?"Cannot reach the server (it may be waking up, or CORS blocks this page). Try again.":e.message,1)}}
+
+// ---------- auth ----------
+$("#dj").href=HOST+"/admin/";
+$("#lf").onsubmit=async e=>{e.preventDefault();const b=$("#lb");b.disabled=1;b.textContent="Logging in… (server may take ~50s to wake)";$("#lerr").textContent="";
+ try{const t=await raw("/auth/login/",{method:"POST",body:{username:$("#lu").value.trim(),password:$("#lp").value}});
+  if(!t.r.ok)throw Error(t.r.status==401?"Wrong username or password":msg(t.d,t.r));
+  const m=await raw("/me/",{},t.d.access);if(!m.d||!m.d.is_admin)throw Error("This account is not an admin");
+  store.set("at",t.d.access);store.set("rt",t.d.refresh);$("#login").style.display="none";$("#lp").value="";go("dash")
+ }catch(x){$("#lerr").textContent=x.message==="Failed to fetch"?"Cannot reach the server. Check the URL or CORS_ORIGINS.":x.message}
+ b.disabled=0;b.textContent="Log in"};
+function logout(){store.set("at","");store.set("rt","");$("#login").style.display="grid"}
+$("#lo").onclick=logout;
+document.querySelectorAll("nav a").forEach(a=>a.onclick=()=>go(a.dataset.v));
+
+// ---------- helpers ----------
+const badge=s=>`<span class="b ${{Pending:"w",pending:"w",Confirmed:"i",Shipped:"i",NeedsReview:"w",Delivered:"g",approved:"g",Paid:"g"}[s]||"r"}">${esc(s)}</span>`;
+const tbl=(h,rows)=>rows.length?`<div class="tw"><table><thead><tr>${J(h.map(x=>`<th>${x}</th>`))}</tr></thead><tbody>${J(rows)}</tbody></table></div>`:`<p class="empty">Nothing here yet.</p>`;
+const itemsTxt=o=>o.items.map(i=>`${esc(i.product)} ×${i.qty}`).join(", ");
+const post=(p,b)=>api(p,{method:"POST",body:b});
+
+// ---------- orders ----------
+const NEXT={Pending:["confirm","Confirm & book courier"],Confirmed:["Shipped","Mark shipped"],Shipped:["Delivered","Mark delivered"],NeedsReview:["details","Resolve"]};
+function quick(o){const n=NEXT[o.status];if(!n)return"";return n[0]=="details"?`<button onclick="odet(${o.id})">${n[1]}</button>`:`<button onclick="oact(${o.id},'${n[0]}')">${n[1]}</button>`}
+async function oact(id,a,extra){
+ const path=a=="confirm"||a=="cancel"||a=="sync"||a=="resolve"?`/admin/orders/${id}/${a}/`:`/admin/orders/${id}/status/`;
+ const body=a=="confirm"||a=="cancel"||a=="sync"?undefined:a=="resolve"?extra:{status:a};
+ const o=await run(()=>post(path,body),`Order updated`);if(o){$("#dlg").open&&$("#dlg").close();go(view)}}
+function odet(id){const o=cache.orders.find(x=>x.id==id);if(!o)return;
+ const a=[];
+ if(o.status=="Pending")a.push(`<button onclick="oact(${id},'confirm')">Confirm & book courier</button><button class="r" onclick="oact(${id},'cancel')">Cancel order</button>`);
+ if(o.status=="Confirmed")a.push(`<button onclick="oact(${id},'Shipped')">Mark shipped</button>`);
+ if(["Confirmed","Shipped","NeedsReview"].includes(o.status))a.push(`<button onclick="oact(${id},'Delivered')">Mark delivered</button><button class="r" onclick="oact(${id},'Returned')">Mark returned</button>`);
+ if(["Confirmed","Shipped","NeedsReview"].includes(o.status))a.push(`<button class="g" onclick="oact(${id},'sync')">Sync courier</button>`);
+ if(o.status=="NeedsReview")a.push(`<button class="g" onclick="ores(${id})">Resolve with custom profit</button>`);
+ $("#dlg").innerHTML=`<h2>${esc(o.code)} ${badge(o.status)}</h2>
+ <div class="kv"><span>Reseller</span><b>${esc(o.reseller)}</b><span>Customer</span>${esc(o.customer)}<span>Phone</span>${esc(o.phone)} <button class="g" onclick="fraud('${esc(o.phone)}')">Fraud check</button><span>Address</span>${esc(o.address)}<span>Area</span>${esc(ZONE[o.zone]||o.zone)}<span>Delivery charge</span>${money(o.delivery_fee)}<span>COD</span>${money(o.cod)}<span>Profit</span>${money(o.profit)} <small>(after delivery charge)</small><span>Courier</span>${esc(o.courier_status||"-")} · ${esc(o.tracking||"no tracking")}<span>Created</span>${dt(o.created)}</div>
+ <div id="fr"></div><h2>Items</h2>${J(o.items.map(i=>`<div>${esc(i.product)} ×${i.qty} · sell ${money(i.sell)} · base ${money(i.base)}</div>`))}
+ <h2>Notes</h2>${J(o.notes.map(n=>`<div class="note">${esc(n.text)}<br><small>${esc(n.status)} · ${dt(n.at)}</small></div>`))||"<p class=empty>No notes.</p>"}
+ <input id="nt" maxlength="300" placeholder="Add a note for the reseller" aria-label="Note"><button style="margin-top:8px" onclick="addnote(${id})">Add note</button>
+ <div class="row" style="justify-content:flex-start">${J(a)}</div><div class="row"><button class="g" onclick="$('#dlg').close()">Close</button></div>`;
+ $("#dlg").showModal()}
+async function addnote(id){const t=$("#nt").value.trim();if(!t)return toast("Write a note first",1);
+ const o=await run(()=>post(`/admin/orders/${id}/note/`,{text:t}),"Note added");if(o){const i=cache.orders.findIndex(x=>x.id==id);cache.orders[i]=o;odet(id)}}
+async function fraud(ph){const e=$("#fr");e.innerHTML='<p class="load">Checking…</p>';
+ try{const d=await api(`/admin/fraud/${ph}/`);e.innerHTML=`<div class="note"><b>Fraud check</b><br>${esc(JSON.stringify(d))}</div>`}catch(x){e.innerHTML=`<div class="err">${esc(x.message)}</div>`}}
+function ores(id){const st=prompt("Final status: Delivered or Returned","Delivered");if(!st)return;
+ const p=prompt("Profit to credit (leave empty to keep current)","");const b={status:st.trim()};if(p&&p.trim()!=="")b.profit=parseInt(p,10);oact(id,"resolve",b)}
+
+// ---------- views ----------
+const V={
+async dash(){const d=await api("/admin/dashboard/"),c=d.orders,mx=Math.max(...ST.map(s=>c[s]||0),1);
+ return `<h1>Dashboard</h1><div class="stats"><div><b>${c.Pending||0}</b>orders to confirm</div><div><b>${d.resellers_pending}</b>resellers to approve</div><div><b>${d.withdraws_pending}</b>withdrawals to review</div><div><b>${money(d.reseller_balances)}</b>reseller balances</div><div><b>${d.steadfast_balance==null?"n/a":money(d.steadfast_balance)}</b>Steadfast balance</div></div><h2>Orders by status</h2>${J(ST.map(s=>`<div class="bar"><span>${s}</span><div><i style="width:${(c[s]||0)/mx*100}%"></i></div><em>${c[s]||0}</em></div>`))}`},
+async orders(){const q=flt=="All"?"":"?status="+flt;cache.orders=await api("/admin/orders/"+q);
+ return `<h1>Orders</h1><div class="top"><select aria-label="Filter by status" onchange="flt=this.value;go('orders')">${J(["All",...ST].map(s=>`<option ${s==flt?"selected":""}>${s}</option>`))}</select><button class="g" onclick="go('orders')">Refresh</button></div>`+
+ tbl(["Order","Reseller","Customer","Area","Items","COD","Profit","Status","Courier","Action"],cache.orders.map(o=>`<tr><td>${esc(o.code)}</td><td>${esc(o.reseller)}</td><td>${esc(o.customer)}</td><td>${esc(ZONE[o.zone]||o.zone)}</td><td>${itemsTxt(o)}</td><td>${money(o.cod)}</td><td>${money(o.profit)}</td><td>${badge(o.status)}</td><td>${esc(o.tracking||"-")}</td><td>${quick(o)}<button class="g" onclick="odet(${o.id})">Details</button></td></tr>`))},
+async products(){const[p,c]=await Promise.all([api("/admin/products/"),api("/admin/categories/")]);cache.cats=c;cache.products=p;
+ return `<h1>Products</h1><p class="empty" style="padding:0 0 10px">Photos (3 or more needed before resellers can see a product) are uploaded in the <a href="${HOST}/admin/" target="_blank" rel="noopener">Django admin</a>.</p><div class="top"><button onclick="pform(0)">Add product</button></div>`+
+ tbl(["Product","Category","Supplier price","Stock","Photos","Visible","Action"],p.map(x=>`<tr><td>${esc(x.name)}</td><td>${esc(x.category_name)}</td><td>${money(x.base_price)}</td><td>${x.stock}</td><td>${x.images.length}${x.images.length<3?' <span class="b w">need 3</span>':""}</td><td>${x.active?badge("approved").replace("approved","Active"):badge("Hidden")}</td><td><button class="g" onclick="pform(${x.id})">Edit</button><button class="g" onclick="ptog(${x.id})">${x.active?"Hide":"Show"}</button><button class="r" onclick="pdel(${x.id})">Delete</button></td></tr>`))},
+async cats(){const[c,p]=await Promise.all([api("/admin/categories/"),api("/admin/products/")]);cache.cats=c;
+ return `<h1>Categories</h1><div class="top"><input id="nc" placeholder="New category name" aria-label="New category"><button onclick="cadd()">Add category</button></div>`+
+ tbl(["Category","Products","Action"],c.map(x=>`<tr><td>${esc(x.name)}</td><td>${p.filter(y=>y.category==x.id).length}</td><td><button class="g" onclick="cren(${x.id},'${esc(x.name).replace(/'/g,"\\'")}')">Rename</button><button class="r" onclick="cdel(${x.id})">Delete</button></td></tr>`))},
+async resellers(){const r=await api("/admin/resellers/");
+ return `<h1>Resellers</h1>`+tbl(["Name","Phone","Shop","Verified","Status","Balance","Action"],r.map(x=>`<tr><td>${esc(x.name)}</td><td>${esc(x.phone)}</td><td>${esc(x.shop_name)}</td><td>${x.verified?"Yes":"No"}</td><td>${badge(x.status)}</td><td>${money(x.balance)}</td><td>${x.status=="pending"?`<button onclick="rst(${x.id},'approved')">Approve</button><button class="r" onclick="rst(${x.id},'blocked')">Reject</button>`:x.status=="approved"?`<button class="r" onclick="rst(${x.id},'blocked')">Block</button>`:`<button class="g" onclick="rst(${x.id},'approved')">Unblock</button>`}</td></tr>`))},
+async wd(){const w=await api("/admin/withdraws/");
+ return `<h1>Withdrawals</h1>`+tbl(["Reseller","Amount","Send to","Status","Date","Action"],w.map(x=>`<tr><td>${esc(x.reseller)}</td><td>${money(x.amount)}</td><td>${esc(x.account)}</td><td>${badge(x.status)}</td><td>${dt(x.created)}</td><td>${x.status=="Pending"?`<button onclick="wst(${x.id},'paid')">Mark as paid</button><button class="r" onclick="wst(${x.id},'reject')">Reject</button>`:"-"}</td></tr>`))},
+async settings(){const s=await api("/admin/settings/");
+ return `<h1>Settings</h1><div class="tw" style="padding:18px;max-width:420px"><h2 style="margin-top:0">Delivery charge</h2><label>Inside Dhaka (৳)<input id="s1" type="number" min="0" value="${s.delivery_inside}"></label><label>Sub Dhaka (৳)<input id="s4" type="number" min="0" value="${s.delivery_sub}"></label><label>Outside Dhaka (৳)<input id="s5" type="number" min="0" value="${s.delivery_outside}"></label><h2>Wallet</h2><label>Minimum withdraw (৳)<input id="s2" type="number" min="0" value="${s.min_withdraw}"></label><label>Hold days before profit is withdrawable<input id="s3" type="number" min="0" value="${s.hold_days}"></label><button onclick="ssave()">Save settings</button></div>`}};
+async function go(v){view=v;document.querySelectorAll("nav a").forEach(a=>a.classList.toggle("on",a.dataset.v==v));
+ const m=$("main");m.innerHTML='<p class="load">Loading…</p>';
+ try{const h=await V[v]();if(view==v)m.innerHTML=h}catch(e){if(view==v)m.innerHTML=`<div class="err">${esc(e.message==="Failed to fetch"?"Cannot reach the server. It may be waking up (free Render plan), or CORS is blocking this page.":e.message)}<br><button style="margin-top:8px" onclick="go('${v}')">Try again</button></div>`}}
+
+// ---------- actions ----------
+const rst=async(id,s)=>{if(await run(()=>post(`/admin/resellers/${id}/status/`,{status:s}),"Reseller "+s))go("resellers")};
+async function wst(id,a){if(a=="reject"&&!confirm("Reject and return the amount to the reseller's balance?"))return;
+ if(await run(()=>post(`/admin/withdraws/${id}/${a}/`),a=="paid"?"Marked as paid":"Rejected, amount returned"))go("wd")}
+async function cadd(){const v=$("#nc").value.trim();if(!v)return toast("Enter a category name",1);
+ if(await run(()=>post("/admin/categories/",{name:v}),"Category added"))go("cats")}
+async function cren(id,n){const v=prompt("New name",n);if(!v||!v.trim()||v==n)return;
+ if(await run(()=>api(`/admin/categories/${id}/`,{method:"PATCH",body:{name:v.trim()}}),"Category renamed"))go("cats")}
+async function cdel(id){if(!confirm("Delete this category?"))return;
+ if(await run(()=>api(`/admin/categories/${id}/`,{method:"DELETE"}),"Category deleted"))go("cats")}
+async function pdel(id){if(!confirm("Delete this product?"))return;
+ if(await run(()=>api(`/admin/products/${id}/`,{method:"DELETE"}),"Product deleted"))go("products")}
+async function ptog(id){const p=cache.products.find(x=>x.id==id);
+ if(await run(()=>api(`/admin/products/${id}/`,{method:"PATCH",body:{active:!p.active}}),p.active?"Hidden from resellers":"Visible to resellers"))go("products")}
+function pform(id){const p=cache.products.find(x=>x.id==id)||{name:"",category:cache.cats[0]&&cache.cats[0].id,base_price:"",stock:"",video_url:"",active:true};
+ if(!cache.cats.length)return toast("Add a category first",1);
+ $("#dlg").innerHTML=`<h2>${id?"Edit":"Add"} product</h2><label>Name<input id="fn" maxlength="120" value="${esc(p.name)}"></label><label>Category<select id="fc">${J(cache.cats.map(c=>`<option value="${c.id}" ${c.id==p.category?"selected":""}>${esc(c.name)}</option>`))}</select></label><label>Supplier price (৳)<input id="fb" type="number" min="1" value="${esc(p.base_price)}"></label><label>Stock<input id="fs" type="number" min="0" value="${esc(p.stock)}"></label><label>YouTube link (optional)<input id="fv" type="url" value="${esc(p.video_url)}" placeholder="https://www.youtube.com/watch?v=..."></label><label><input id="fa" type="checkbox" style="width:auto" ${p.active?"checked":""}> Visible to resellers</label><div class="row"><button class="g" onclick="$('#dlg').close()">Cancel</button><button onclick="psave(${id})">Save product</button></div>`;$("#dlg").showModal()}
+async function psave(id){const b={name:$("#fn").value.trim(),category:+$("#fc").value,base_price:+$("#fb").value,stock:+$("#fs").value,video_url:$("#fv").value.trim(),active:$("#fa").checked};
+ if(!b.name||b.base_price<=0||b.stock<0||isNaN(b.stock))return toast("Enter a name, a price above 0 and stock",1);
+ if(await run(()=>api(id?`/admin/products/${id}/`:"/admin/products/",{method:id?"PATCH":"POST",body:b}),"Product saved")){$("#dlg").close();go("products")}}
+async function ssave(){const b={delivery_inside:$("#s1").value,delivery_sub:$("#s4").value,delivery_outside:$("#s5").value,min_withdraw:$("#s2").value,hold_days:$("#s3").value};
+ if(await run(()=>post("/admin/settings/",b),"Settings saved"))go("settings")}
+
+// ---------- start ----------
+if(store.get("at")){$("#login").style.display="none";go("dash")}
+</script></body></html>
