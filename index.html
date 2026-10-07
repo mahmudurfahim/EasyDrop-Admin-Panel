@@ -124,25 +124,19 @@ const refresh=()=>view=="orders"?loadOrders():go(view);
 const NEXT={Pending:["confirm","Confirm"],Confirmed:["Shipped","Mark shipped"],Shipped:["Delivered","Mark delivered"],NeedsReview:["details","Resolve"]};
 const RET="Mark as Returned?\n\nThe parcel is back, so its delivery charge will be taken from the reseller's balance (the balance can go below zero).";
 function quick(o){const n=NEXT[o.status];if(!n)return"";
- return n[0]=="details"?`<button onclick="odet(${o.id})">${n[1]}</button>`:n[0]=="confirm"?`<button onclick="cdlg(${o.id})">${n[1]}</button>`:`<button onclick="oact(${o.id},'${n[0]}')">${n[1]}</button>`}
+ return n[0]=="details"?`<button onclick="odet(${o.id})">${n[1]}</button>`:`<button onclick="oact(${o.id},'${n[0]}')">${n[1]}</button>`}
 async function oact(id,a,extra){
  if(a=="Returned"&&!confirm(RET))return;
- const path=a=="cancel"||a=="resolve"?`/admin/orders/${id}/${a}/`:`/admin/orders/${id}/status/`;
- const body=a=="cancel"?undefined:a=="resolve"?extra:{status:a};
+ const path=a=="confirm"||a=="cancel"||a=="resolve"?`/admin/orders/${id}/${a}/`:`/admin/orders/${id}/status/`;
+ const body=a=="confirm"||a=="cancel"?undefined:a=="resolve"?extra:{status:a};
  const o=await run(()=>post(path,body),"Order updated");if(o){$("#dlg").open&&$("#dlg").close();refresh()}}
-function cdlg(id){const o=cache.orders.find(x=>x.id==id);if(!o)return;
- $("#dlg").innerHTML=`<h2>Confirm ${esc(o.code)}</h2><p style="margin:0 0 6px;color:var(--mut)">${esc(o.customer)} · ${esc(o.reseller)} · COD ${money(o.cod)}</p>
- <label>Note <small>(optional, shown to the reseller)</small><textarea id="cn" rows="3" maxlength="300" placeholder="e.g. Will be shipped tomorrow by Pathao, tracking ABC123"></textarea></label>
- <div class="row"><button class="g" onclick="$('#dlg').close()">Cancel</button><button onclick="cgo(${id})">Confirm order</button></div>`;$("#dlg").showModal();$("#cn").focus()}
-async function cgo(id){const n=$("#cn").value.trim();
- const o=await run(()=>post(`/admin/orders/${id}/confirm/`,{note:n}),"Order confirmed");if(o){$("#dlg").close();refresh()}}
 function odet(id){const o=cache.orders.find(x=>x.id==id);if(!o)return;const a=[];
- if(o.status=="Pending")a.push(`<button onclick="cdlg(${id})">Confirm</button><button class="r" onclick="if(confirm('Cancel this order?'))oact(${id},'cancel')">Cancel order</button>`);
+ if(o.status=="Pending")a.push(`<button onclick="oact(${id},'confirm')">Confirm</button><button class="r" onclick="if(confirm('Cancel this order?'))oact(${id},'cancel')">Cancel order</button>`);
  if(o.status=="Confirmed")a.push(`<button onclick="oact(${id},'Shipped')">Mark shipped</button>`);
  if(["Confirmed","Shipped","NeedsReview"].includes(o.status))a.push(`<button onclick="oact(${id},'Delivered')">Mark delivered</button><button class="r" onclick="oact(${id},'Returned')">Mark returned</button>`);
  if(o.status=="NeedsReview")a.push(`<button class="g" onclick="ores(${id})">Resolve with custom profit</button>`);
  $("#dlg").innerHTML=`<h2>${esc(o.code)} ${badge(o.status)}</h2>
- <div class="kv"><span>Reseller</span><b>${esc(o.reseller)}</b><span>Customer</span>${esc(o.customer)}<span>Phone</span>${esc(o.phone)}<span>Address</span>${esc(o.address)}<span>Area</span>${esc(ZONE[o.zone]||o.zone)}<span>Delivery charge</span>${money(o.delivery_fee)}<span>COD</span>${money(o.cod)}<span>Profit</span>${money(o.profit)} <small>(after delivery charge)</small><span>Created</span>${dt(o.created)}</div>
+ <div class="kv"><span>Reseller</span><b>${esc(o.reseller)}</b><span>Customer</span>${esc(o.customer)}<span>Phone</span>${esc(o.phone)}<span>Address</span>${esc(o.address)}${o.note?`<span>Customer note</span><b>${esc(o.note)}</b>`:""}<span>Area</span>${esc(ZONE[o.zone]||o.zone)}<span>Delivery charge</span>${money(o.delivery_fee)}<span>COD</span>${money(o.cod)}<span>Profit</span>${money(o.profit)} <small>(after delivery charge)</small><span>Created</span>${dt(o.created)}</div>
  <h2>Items</h2>${J(o.items.map(i=>`<div>${esc(i.product)} ×${i.qty} · sell ${money(i.sell)} · base ${money(i.base)}</div>`))}
  <h2>Notes</h2>${J(o.notes.map(n=>`<div class="note">${esc(n.text)}<br><small>${esc(n.status)} · ${dt(n.at)}</small></div>`))||"<p class=empty>No notes.</p>"}
  <input id="nt" maxlength="300" placeholder="Add a note for the reseller" aria-label="Note"><button style="margin-top:8px" onclick="addnote(${id})">Add note</button>
@@ -158,7 +152,7 @@ async function loadOrders(){const t=++ot,box=$("#ot");if(!box)return;box.innerHT
  const p=new URLSearchParams();if(F.os!="All")p.set("status",F.os);if(F.oz)p.set("zone",F.oz);if(F.oq.trim())p.set("q",F.oq.trim());
  try{const l=await api("/admin/orders/"+(p.toString()?"?"+p:""));if(t!=ot||view!="orders")return;cache.orders=l;
   box.innerHTML=`<p class="cnt">${l.length} order${l.length==1?"":"s"}${l.length>=200?" (latest 200 shown, search to narrow down)":""}</p>`+
-  tbl(["Order","Reseller","Customer","Area","Items","COD","Profit","Status","Action"],l.map(o=>`<tr><td>${esc(o.code)}</td><td>${esc(o.reseller)}</td><td>${esc(o.customer)}<span class="sub">${esc(o.phone)}</span></td><td>${esc(ZONE[o.zone]||o.zone)}</td><td>${itemsTxt(o)}</td><td>${money(o.cod)}</td><td>${money(o.profit)}</td><td>${badge(o.status)}</td><td>${quick(o)}<button class="g" onclick="odet(${o.id})">Details</button></td></tr>`),"No orders match.")
+  tbl(["Order","Reseller","Customer","Area","Items","COD","Profit","Status","Action"],l.map(o=>`<tr><td>${esc(o.code)}</td><td>${esc(o.reseller)}</td><td>${esc(o.customer)}<span class="sub">${esc(o.phone)}</span>${o.note?`<span class="sub" title="${esc(o.note)}">Note: ${short(o.note,40)}</span>`:""}</td><td>${esc(ZONE[o.zone]||o.zone)}</td><td>${itemsTxt(o)}</td><td>${money(o.cod)}</td><td>${money(o.profit)}</td><td>${badge(o.status)}</td><td>${quick(o)}<button class="g" onclick="odet(${o.id})">Details</button></td></tr>`),"No orders match.")
  }catch(e){if(t==ot&&box)box.innerHTML=`<div class="err">${esc(e.message)}</div>`}}
 const oqs=debounce(()=>loadOrders(),400);
 
@@ -178,7 +172,7 @@ function pform(id){const p=cache.products.find(x=>x.id==id)||{name:"",descriptio
  <label><input id="fa" type="checkbox" style="width:auto" ${p.active?"checked":""}> Visible to resellers</label>
  <label>Photos <small id="pc"></small></label><div class="photos" id="ph"></div>
  <input id="pf" type="file" accept="image/*" multiple onchange="${id?`pup(${id})`:"pnew()"}">
- <p class="cnt" style="margin:6px 0 0">Photos are cropped to a square automatically. Resellers see a product only when it has 3 or more photos.</p>
+ <p class="cnt" style="margin:6px 0 0">Photos keep their own shape (big ones are shrunk to 1000 px, nothing is cropped). Resellers see a product only when it has 3 or more photos.</p>
  <div class="row"><button class="g" onclick="$('#dlg').close()">Cancel</button><button id="ps" onclick="psave(${id})">Save product</button></div>`;
  $("#dlg").showModal();wcount();rph(id)}
 function rph(id){const p=cache.products.find(x=>x.id==id),ph=$("#ph"),pc=$("#pc");if(!ph)return;
@@ -246,7 +240,7 @@ async function ndel(id){if(!confirm("Delete this notice?"))return;if(await run((
 const V={
 async dash(){const d=await api("/admin/dashboard/"),c=d.orders,mx=Math.max(...ST.map(s=>c[s]||0),1);
  return `<h1>Dashboard</h1><div class="stats"><div><b>${c.Pending||0}</b>orders to confirm</div><div><b>${d.resellers_pending}</b>resellers to approve</div><div><b>${d.withdraws_pending}</b>withdrawals to review</div><div><b class="${d.reseller_balances<0?"neg":""}">${money(d.reseller_balances)}</b>reseller balances</div></div><h2>Orders by status</h2>${J(ST.map(s=>`<div class="bar"><span>${s}</span><div><i style="width:${(c[s]||0)/mx*100}%"></i></div><em>${c[s]||0}</em></div>`))}`},
-async orders(){return `<h1>Orders</h1><div class="top"><select aria-label="Filter by status" onchange="F.os=this.value;loadOrders()">${opts(["All",...ST].map(s=>[s,s]),F.os)}</select><select aria-label="Filter by area" onchange="F.oz=this.value;loadOrders()">${opts([["","All areas"],...Object.entries(ZONE)],F.oz)}</select><input type="search" aria-label="Search orders" placeholder="Search code, customer, phone, reseller" value="${esc(F.oq)}" oninput="F.oq=this.value;oqs()"><button class="g" onclick="loadOrders()">Refresh</button></div><div id="ot"></div>`},
+async orders(){return `<h1>Orders</h1><div class="top"><select aria-label="Filter by status" onchange="F.os=this.value;loadOrders()">${opts(["All",...ST].map(s=>[s,s]),F.os)}</select><select aria-label="Filter by area" onchange="F.oz=this.value;loadOrders()">${opts([["","All areas"],...Object.entries(ZONE)],F.oz)}</select><input type="search" aria-label="Search orders" placeholder="Search code, customer, phone, reseller, note" value="${esc(F.oq)}" oninput="F.oq=this.value;oqs()"><button class="g" onclick="loadOrders()">Refresh</button></div><div id="ot"></div>`},
 async products(){const[p,c,s]=await Promise.all([api("/admin/products/"),api("/admin/categories/"),api("/admin/subcategories/")]);cache.products=p;cache.cats=c;cache.subs=s;
  return `<h1>Products</h1><div class="top"><button onclick="pform(0)">Add product</button></div>`+
  tbl(["","Product","Category › Sub category","Supplier price","Stock","Size","Color","Photos","Visible","Action"],p.map(x=>`<tr><td>${x.photos[0]?`<img class="pt" src="${esc(x.photos[0].url)}" alt="" loading="lazy">`:""}</td><td>${esc(x.name)}<span class="sub" title="${esc(x.description)}">${x.description?short(x.description,40):'<span class="b w">no description</span>'}</span></td><td>${esc(x.category_name||"-")} › ${esc(x.subcategory_name)}</td><td>${money(x.base_price)}</td><td>${x.stock}</td><td>${esc(x.size||"-")}</td><td>${esc(x.color||"-")}</td><td>${x.photos.length}${x.photos.length<3?' <span class="b w">need 3</span>':""}</td><td>${x.active?badge("Active"):badge("Hidden")}</td><td><button class="g" onclick="pform(${x.id})">Edit</button><button class="g" onclick="ptog(${x.id})">${x.active?"Hide":"Show"}</button><button class="r" onclick="pdel(${x.id})">Delete</button></td></tr>`))},
