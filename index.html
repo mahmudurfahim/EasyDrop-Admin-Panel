@@ -49,6 +49,20 @@ dialog label{display:block;margin:10px 0;font-weight:600}dialog h2{margin-top:0}
 .photos{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0}.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .top input[type=search]{min-width:240px}.cnt{color:var(--mut);font-size:12px;margin:-4px 0 8px}
 dialog label small{font-weight:400;color:var(--mut)}dialog textarea{resize:vertical}
+.ol{display:grid;grid-template-columns:repeat(auto-fill,minmax(430px,1fr));gap:14px}
+.oc{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+.oh{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:11px 14px;background:#f7fcfd;border-bottom:1px solid var(--line)}
+.oh b{font-size:16px}.oh .dt{margin-left:auto;color:var(--mut);font-size:12px}
+.chip{background:#e3f1f3;color:var(--cd);border-radius:99px;padding:2px 9px;font-size:12px;font-weight:600}
+.cu{padding:11px 14px 2px}.cu .sub{display:block}.rs{padding:0 14px 6px;color:var(--mut);font-size:12px}
+.onote{margin:4px 14px 6px;background:#fff8e1;border-left:3px solid #e0a800;padding:6px 10px;border-radius:6px;font-size:13px}
+.its{padding:2px 14px}.ln{display:grid;grid-template-columns:1fr auto;gap:2px 12px;padding:9px 0;border-bottom:1px dashed var(--line)}.ln:last-child{border:0}
+.ln .q{color:var(--mut);font-weight:600}.mt{color:var(--mut);font-size:12px}.lp{font-weight:600;text-align:right}
+.tag{display:inline-block;background:#e8f7f1;color:var(--ok);border-radius:6px;padding:1px 8px;font-size:12px;font-weight:600;margin:3px 6px 0 0}.tag.c{background:#e6f4fb;color:var(--cd)}
+.of{margin-top:auto;border-top:1px solid var(--line);padding:10px 14px;display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center}
+.mn span{display:block;font-size:11px;color:var(--mut)}.mn b{font-size:14px}.acts{margin-left:auto}
+.pos{display:flex;align-items:center;gap:4px}.pos button{padding:2px 8px;margin:0}.pos input{width:62px;padding:4px 6px}
+.hint{font-size:12px;color:var(--mut);margin:-4px 0 8px}
 </style></head>
 <body>
 <div id="login"><form id="lf">
@@ -57,7 +71,7 @@ dialog label small{font-weight:400;color:var(--mut)}dialog textarea{resize:verti
 <input id="lp" type="password" placeholder="Password" autocomplete="current-password" aria-label="Password" required>
 <button id="lb" style="width:100%;padding:9px">Log in</button></form></div>
 <div class="app"><aside><h3>Easy<span>Drop</span></h3><nav>
-<a data-v="dash">Dashboard</a><a data-v="orders">Orders</a><a data-v="products">Products</a><a data-v="subs">Sub Categories</a>
+<a data-v="dash">Dashboard</a><a data-v="orders">Orders</a><a data-v="products">Products</a><a data-v="cats">Categories</a><a data-v="subs">Sub Categories</a>
 <a data-v="resellers">Resellers</a><a data-v="wd">Withdrawals</a><a data-v="notices">Notices</a><a data-v="settings">Settings</a></nav>
 <div class="side-b"><a id="dj" target="_blank" rel="noopener">Django admin</a><a id="lo">Log out</a></div></aside>
 <main></main></div>
@@ -75,7 +89,7 @@ const store={get:k=>{try{return localStorage.getItem(k)||""}catch{return ""}},se
 const debounce=(f,ms)=>{let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>f(...a),ms)}};
 let view="dash",dirty=false;
 const cache={cats:[],subs:[],orders:[],products:[],resellers:[],wd:[],notices:[],newFiles:[]};
-const F={os:"All",oz:"",oq:"",rs:"All",rq:"",ws:"All",wq:""};
+const F={os:"All",oz:"",oq:"",rs:"All",rq:"",ws:"All",wq:"",pq:"",pc:"",ps:"",pv:"All",pk:"All"};
 
 // ---------- API ----------
 async function raw(path,o={},tok){
@@ -114,6 +128,12 @@ $("#dlg").addEventListener("close",()=>{if(dirty){dirty=false;go(view)}});
 const badge=(s,t)=>`<span class="b ${{Pending:"w",pending:"w",Confirmed:"i",Shipped:"i",NeedsReview:"w",Delivered:"g",approved:"g",Paid:"g",Active:"g",Pinned:"i"}[s]||"r"}">${esc(t||s)}</span>`;
 const tbl=(h,rows,empty)=>rows.length?`<div class="tw"><table><thead><tr>${J(h.map(x=>`<th>${x}</th>`))}</tr></thead><tbody>${J(rows)}</tbody></table></div>`:`<p class="empty">${empty||"Nothing here yet."}</p>`;
 const itemsTxt=o=>o.items.map(i=>`${esc(i.product)} ×${i.qty}`).join(", ");
+const lineHtml=i=>`<div class="ln"><div><b>${esc(i.product||"(deleted product)")}</b> <span class="q">×${i.qty}</span>${i.category||i.subcategory?`<div class="mt">${esc(i.category||"-")} › ${esc(i.subcategory||"-")}</div>`:""}${i.size||i.color?`<div>${i.size?`<span class="tag">Size: ${esc(i.size)}</span>`:""}${i.color?`<span class="tag c">Color: ${esc(i.color)}</span>`:""}</div>`:""}</div><div class="lp">${money(i.sell*i.qty)}<div class="mt">${money(i.sell)} each</div></div></div>`;
+function orderCard(o){return `<div class="oc"><div class="oh"><b>${esc(o.code)}</b>${badge(o.status)}<span class="chip">${esc(ZONE[o.zone]||o.zone)}</span><span class="dt">${dt(o.created)}</span></div>
+<div class="cu"><b>${esc(o.customer)}</b> · ${esc(o.phone)}<span class="sub">${esc(o.address)}</span></div>
+${o.note?`<div class="onote"><b>Customer note:</b> ${esc(o.note)}</div>`:""}<div class="rs">Reseller: <b>${esc(o.reseller)}</b></div>
+<div class="its">${J(o.items.map(lineHtml))}</div>
+<div class="of"><div class="mn"><span>COD</span><b>${money(o.cod)}</b></div><div class="mn"><span>Delivery</span><b>${money(o.delivery_fee)}</b></div><div class="mn"><span>Reseller profit</span><b>${money(o.profit)}</b></div><div class="acts">${quick(o)}<button class="g" onclick="odet(${o.id})">Details</button></div></div></div>`}
 const opts=(list,sel)=>J(list.map(([v,t])=>`<option value="${esc(v)}" ${v==sel?"selected":""}>${esc(t)}</option>`));
 const short=(s,n)=>s?esc(s.length>n?s.slice(0,n)+"…":s):"";
 const wn=s=>(s.trim().match(/\S+/g)||[]).length;
@@ -137,7 +157,7 @@ function odet(id){const o=cache.orders.find(x=>x.id==id);if(!o)return;const a=[]
  if(o.status=="NeedsReview")a.push(`<button class="g" onclick="ores(${id})">Resolve with custom profit</button>`);
  $("#dlg").innerHTML=`<h2>${esc(o.code)} ${badge(o.status)}</h2>
  <div class="kv"><span>Reseller</span><b>${esc(o.reseller)}</b><span>Customer</span>${esc(o.customer)}<span>Phone</span>${esc(o.phone)}<span>Address</span>${esc(o.address)}${o.note?`<span>Customer note</span><b>${esc(o.note)}</b>`:""}<span>Area</span>${esc(ZONE[o.zone]||o.zone)}<span>Delivery charge</span>${money(o.delivery_fee)}<span>COD</span>${money(o.cod)}<span>Profit</span>${money(o.profit)} <small>(after delivery charge)</small><span>Created</span>${dt(o.created)}</div>
- <h2>Items</h2>${J(o.items.map(i=>`<div>${esc(i.product)} ×${i.qty} · sell ${money(i.sell)} · base ${money(i.base)}</div>`))}
+ <h2>Items</h2>${J(o.items.map(i=>lineHtml(i)+`<div class="mt" style="margin:-6px 0 6px">supplier price ${money(i.base)} each</div>`))}
  <h2>Notes</h2>${J(o.notes.map(n=>`<div class="note">${esc(n.text)}<br><small>${esc(n.status)} · ${dt(n.at)}</small></div>`))||"<p class=empty>No notes.</p>"}
  <input id="nt" maxlength="300" placeholder="Add a note for the reseller" aria-label="Note"><button style="margin-top:8px" onclick="addnote(${id})">Add note</button>
  <div class="row" style="justify-content:flex-start">${J(a)}</div><div class="row"><button class="g" onclick="$('#dlg').close()">Close</button></div>`;
@@ -151,8 +171,7 @@ let ot=0;
 async function loadOrders(){const t=++ot,box=$("#ot");if(!box)return;box.innerHTML='<p class="load">Loading…</p>';
  const p=new URLSearchParams();if(F.os!="All")p.set("status",F.os);if(F.oz)p.set("zone",F.oz);if(F.oq.trim())p.set("q",F.oq.trim());
  try{const l=await api("/admin/orders/"+(p.toString()?"?"+p:""));if(t!=ot||view!="orders")return;cache.orders=l;
-  box.innerHTML=`<p class="cnt">${l.length} order${l.length==1?"":"s"}${l.length>=200?" (latest 200 shown, search to narrow down)":""}</p>`+
-  tbl(["Order","Reseller","Customer","Area","Items","COD","Profit","Status","Action"],l.map(o=>`<tr><td>${esc(o.code)}</td><td>${esc(o.reseller)}</td><td>${esc(o.customer)}<span class="sub">${esc(o.phone)}</span>${o.note?`<span class="sub" title="${esc(o.note)}">Note: ${short(o.note,40)}</span>`:""}</td><td>${esc(ZONE[o.zone]||o.zone)}</td><td>${itemsTxt(o)}</td><td>${money(o.cod)}</td><td>${money(o.profit)}</td><td>${badge(o.status)}</td><td>${quick(o)}<button class="g" onclick="odet(${o.id})">Details</button></td></tr>`),"No orders match.")
+  box.innerHTML=`<p class="cnt">${l.length} order${l.length==1?"":"s"}${l.length>=200?" (latest 200 shown, search to narrow down)":""}</p>`+(l.length?`<div class="ol">${J(l.map(orderCard))}</div>`:'<p class="empty">No orders match.</p>')
  }catch(e){if(t==ot&&box)box.innerHTML=`<div class="err">${esc(e.message)}</div>`}}
 const oqs=debounce(()=>loadOrders(),400);
 
@@ -160,25 +179,27 @@ const oqs=debounce(()=>loadOrders(),400);
 function subOptions(sel){const by={};cache.subs.forEach(s=>(by[s.category||0]=by[s.category||0]||[]).push(s));
  let h=J(cache.cats.filter(c=>by[c.id]).map(c=>`<optgroup label="${esc(c.name)}">${J(by[c.id].map(s=>`<option value="${s.id}" ${s.id==sel?"selected":""}>${esc(s.name)}</option>`))}</optgroup>`));
  if(by[0])h+=`<optgroup label="No category yet (fix it in Sub Categories)">${J(by[0].map(s=>`<option value="${s.id}" ${s.id==sel?"selected":""}>${esc(s.name)}</option>`))}</optgroup>`;return h}
-function pform(id){const p=cache.products.find(x=>x.id==id)||{name:"",description:"",subcategory:"",base_price:"",stock:"",size:"",color:"",video_url:"",active:true,photos:[]};
+function pform(id){const p=cache.products.find(x=>x.id==id)||{name:"",description:"",subcategory:"",base_price:"",in_stock:true,position:"",size:"",color:"",video_url:"",active:true,photos:[]};
  if(!cache.subs.length){toast("Add a sub category first (Sub Categories page)",1);return}
  cache.newFiles=[];
  $("#dlg").innerHTML=`<h2>${id?"Edit":"Add"} product</h2><label>Name<input id="fn" maxlength="120" value="${esc(p.name)}"></label>
  <label>Sub category<select id="fc">${subOptions(p.subcategory)}</select></label>
  <label>Description <small id="wc"></small><textarea id="fd" rows="4" oninput="wcount()" placeholder="Short product details (max 100 words)">${esc(p.description)}</textarea></label>
- <div class="two"><label>Supplier price (৳)<input id="fb" type="number" min="1" value="${esc(p.base_price)}"></label><label>Stock<input id="fs" type="number" min="0" value="${esc(p.stock)}"></label></div>
- <div class="two"><label>Size <small>(optional)</small><input id="fz" maxlength="100" placeholder="e.g. M, L, XL" value="${esc(p.size)}"></label><label>Color <small>(optional)</small><input id="fk" maxlength="100" placeholder="e.g. Red, Black" value="${esc(p.color)}"></label></div>
+ <div class="two"><label>Supplier price (৳)<input id="fb" type="number" min="1" value="${esc(p.base_price)}"></label><label>Stock<select id="fs">${opts([["1","In stock"],["0","Out of stock"]],p.in_stock?"1":"0")}</select></label></div>
+ <div class="two"><label>Size <small>(optional)</small><input id="fz" maxlength="100" placeholder="e.g. M, L, XL" value="${esc(p.size)}"></label><label>Color <small>(optional)</small><input id="fk" maxlength="100" placeholder="e.g. Black, White" value="${esc(p.color)}"></label></div>
+ <p class="hint">Separate options with commas. Every option becomes a choice the reseller must pick one of. Leave empty if there is nothing to choose.</p>
  <label>YouTube link <small>(optional)</small><input id="fv" type="url" value="${esc(p.video_url)}" placeholder="https://www.youtube.com/watch?v=..."></label>
+ <label>Priority <small>(optional, smaller number shows first inside its sub category)</small><input id="fp" type="number" min="0" value="${esc(p.position||"")}"></label>
  <label><input id="fa" type="checkbox" style="width:auto" ${p.active?"checked":""}> Visible to resellers</label>
  <label>Photos <small id="pc"></small></label><div class="photos" id="ph"></div>
  <input id="pf" type="file" accept="image/*" multiple onchange="${id?`pup(${id})`:"pnew()"}">
- <p class="cnt" style="margin:6px 0 0">Photos keep their own shape (big ones are shrunk to 1000 px, nothing is cropped). Resellers see a product only when it has 3 or more photos.</p>
+ <p class="cnt" style="margin:6px 0 0">Photos keep their own shape (big ones are shrunk to 1000 px, nothing is cropped). Resellers see a product only when it has at least 1 photo.</p>
  <div class="row"><button class="g" onclick="$('#dlg').close()">Cancel</button><button id="ps" onclick="psave(${id})">Save product</button></div>`;
  $("#dlg").showModal();wcount();rph(id)}
 function rph(id){const p=cache.products.find(x=>x.id==id),ph=$("#ph"),pc=$("#pc");if(!ph)return;
- if(!id){const n=cache.newFiles.length;ph.innerHTML="";pc.textContent=n?`${n} selected, they upload when you save`:"(choose 3 or more)";pc.style.color=n&&n<3?"var(--warn)":"var(--mut)";return}
+ if(!id){const n=cache.newFiles.length;ph.innerHTML="";pc.textContent=n?`${n} selected, they upload when you save`:"(choose at least 1)";pc.style.color=n?"var(--ok)":"var(--warn)";return}
  const l=p.photos||[];ph.innerHTML=J(l.map(x=>`<div class="th"><img src="${esc(x.url)}" alt="" loading="lazy"><button title="Delete photo" onclick="pdelph(${id},${x.id})">×</button></div>`))||'<span class="empty" style="padding:0">No photos yet.</span>';
- pc.textContent=`${l.length}/10${l.length<3?" - need 3 or more":""}`;pc.style.color=l.length<3?"var(--warn)":"var(--ok)"}
+ pc.textContent=`${l.length}/10${l.length<1?" - need at least 1":""}`;pc.style.color=l.length<1?"var(--warn)":"var(--ok)"}
 function wcount(){const n=wn($("#fd").value),e=$("#wc");e.textContent=`${n}/100 words`;e.style.color=n>100?"var(--bad)":"var(--mut)"}
 async function shrink(f){ // max 2000px JPEG: faster uploads and always under the 8 MB limit
  try{if(f.size<1.5e6&&/jpe?g/i.test(f.type))return f;
@@ -192,36 +213,46 @@ async function pup(id){const fs=[...$("#pf").files];if(!fs.length)return;if(fs.l
  if(p&&p!==true){const i=cache.products.findIndex(x=>x.id==id);cache.products[i]=p;dirty=true;rph(id)}}
 async function pdelph(id,pid){if(!confirm("Delete this photo?"))return;
  const p=await run(()=>del(`/admin/products/${id}/images/${pid}/`),"Photo deleted");if(p&&p!==true){const i=cache.products.findIndex(x=>x.id==id);cache.products[i]=p;dirty=true;rph(id)}}
-async function psave(id){const b={name:$("#fn").value.trim(),subcategory:+$("#fc").value,description:$("#fd").value.trim(),base_price:+$("#fb").value,stock:+$("#fs").value,size:$("#fz").value.trim(),color:$("#fk").value.trim(),video_url:$("#fv").value.trim(),active:$("#fa").checked};
+async function psave(id){const b={name:$("#fn").value.trim(),subcategory:+$("#fc").value,description:$("#fd").value.trim(),base_price:+$("#fb").value,in_stock:$("#fs").value=="1",size:$("#fz").value.trim(),color:$("#fk").value.trim(),video_url:$("#fv").value.trim(),active:$("#fa").checked};
+ if($("#fp").value!=="")b.position=parseInt($("#fp").value,10);
  if(!b.description)return toast("Write a product description",1);if(wn(b.description)>100)return toast("Description is over 100 words",1);
- if(!b.name||b.base_price<=0||b.stock<0||isNaN(b.stock))return toast("Enter a name, a price above 0 and stock",1);
+ if(!b.name||b.base_price<=0)return toast("Enter a name and a price above 0",1);
  if(!b.subcategory)return toast("Choose a sub category",1);
  const bt=$("#ps");bt.disabled=true;
  const p=await run(()=>api(id?`/admin/products/${id}/`:"/admin/products/",{method:id?"PATCH":"POST",body:b}),"Product saved");
  if(!p||p===true){bt.disabled=false;return}
  if(!id&&cache.newFiles.length){toast("Uploading photos…");const u=await run(()=>upload(p.id,cache.newFiles),"Product and photos saved");if(!u)toast("Product saved, but the photos failed. Open Edit and add them again.",1)}
  dirty=false;$("#dlg").close();go("products")}
-async function pdel(id){if(!confirm("Delete this product?"))return;
+async function pdel(id){if(!confirm("Delete this product?\n\nIt disappears from the product list and from carts. Orders already placed with it stay as they are and can still be tracked."))return;
  if(await run(()=>del(`/admin/products/${id}/`),"Product deleted"))go("products")}
 async function ptog(id){const p=cache.products.find(x=>x.id==id);
  if(await run(()=>patch(`/admin/products/${id}/`,{active:!p.active}),p.active?"Hidden from resellers":"Visible to resellers"))go("products")}
+function renderProducts(){const box=$("#pt");if(!box)return;
+ const l=cache.products.filter(x=>has(F.pq,x.name,x.description,x.category_name,x.subcategory_name,x.size,x.color)&&(!F.pc||x.category==F.pc)&&(!F.ps||x.subcategory==F.ps)&&(F.pv=="All"||(F.pv=="1")==x.active)&&(F.pk=="All"||(F.pk=="1")==x.in_stock));
+ box.innerHTML=`<p class="cnt">${l.length} of ${cache.products.length}${F.pq||F.pc||F.ps||F.pv!="All"||F.pk!="All"?"":" · the ▲▼ arrows move a product inside its sub category"}</p>`+
+ tbl(["Priority","","Product","Category › Sub category","Supplier price","Stock","Size","Color","Photos","Visible","Action"],l.map(x=>`<tr><td><div class="pos"><button class="g" title="Move up" onclick="pmove('products',${x.id},'up')">▲</button><button class="g" title="Move down" onclick="pmove('products',${x.id},'down')">▼</button></div></td><td>${x.photos[0]?`<img class="pt" src="${esc(x.photos[0].url)}" alt="" loading="lazy">`:""}</td><td>${esc(x.name)}<span class="sub" title="${esc(x.description)}">${x.description?short(x.description,40):'<span class="b w">no description</span>'}</span></td><td>${esc(x.category_name||"-")} › ${esc(x.subcategory_name)}</td><td>${money(x.base_price)}</td><td>${x.in_stock?badge("Active","In stock"):badge("Out","Out of stock")}</td><td>${esc(x.size||"-")}</td><td>${esc(x.color||"-")}</td><td>${x.photos.length}${x.photos.length<1?' <span class="b w">need 1</span>':""}</td><td>${x.active?badge("Active"):badge("Hidden")}</td><td><button class="g" onclick="pform(${x.id})">Edit</button><button class="g" onclick="ptog(${x.id})">${x.active?"Hide":"Show"}</button><button class="r" onclick="pdel(${x.id})">Delete</button></td></tr>`),"No products match.")}
+function pcat(v){F.pc=v;F.ps="";const sel=$("#psb");if(sel)sel.innerHTML=opts([["","All sub categories"],...cache.subs.filter(s=>!v||s.category==v).map(s=>[s.id,s.name])],"");renderProducts()}
+// priority: arrows swap with the neighbour, the number sets it directly (smaller shows first)
+async function pmove(kind,id,d){if(await run(()=>post(`/admin/${kind}/${id}/move/`,{direction:d})))go(view)}
+async function setpos(kind,id,v){if(await run(()=>patch(`/admin/${kind}/${id}/`,{position:Math.max(0,parseInt(v||0,10)||0)}),"Priority saved"))go(view)}
 
 // ---------- sub categories ----------
 function sform(id){const s=cache.subs.find(x=>x.id==id);if(!s)return;
- $("#dlg").innerHTML=`<h2>Edit sub category</h2><label>Category<select id="sc">${opts([["","Choose a category…"],...cache.cats.map(c=>[c.id,c.name])],s.category)}</select></label><label>Name<input id="sn" maxlength="60" value="${esc(s.name)}"></label>
+ $("#dlg").innerHTML=`<h2>Edit sub category</h2><label>Category<select id="sc">${opts([["","Choose a category…"],...cache.cats.map(c=>[c.id,c.name])],s.category)}</select></label><label>Name<input id="sn" maxlength="60" value="${esc(s.name)}"></label><label>Priority <small>(smaller shows first)</small><input id="sp" type="number" min="0" value="${esc(s.position)}"></label>
  <div class="row"><button class="g" onclick="$('#dlg').close()">Cancel</button><button onclick="ssub(${id})">Save</button></div>`;$("#dlg").showModal()}
 async function ssub(id){const c=+$("#sc").value,n=$("#sn").value.trim();if(!c)return toast("Choose a category",1);if(!n)return toast("Enter a name",1);
- if(await run(()=>patch(`/admin/subcategories/${id}/`,{name:n,category:c}),"Sub category saved")){$("#dlg").close();go("subs")}}
+ if(await run(()=>patch(`/admin/subcategories/${id}/`,{name:n,category:c,position:Math.max(0,parseInt($("#sp").value||0,10)||0)}),"Sub category saved")){$("#dlg").close();go("subs")}}
 async function sadd(){const c=+$("#ac").value,n=$("#an").value.trim();if(!c)return toast("Choose a category first",1);if(!n)return toast("Enter a sub category name",1);
  if(await run(()=>post("/admin/subcategories/",{name:n,category:c}),"Sub category added")){F.ac=c;go("subs")}}
 async function sdel(id){if(!confirm("Delete this sub category?"))return;
  if(await run(()=>del(`/admin/subcategories/${id}/`),"Sub category deleted"))go("subs")}
+const posCell=(kind,x)=>`<div class="pos"><button class="g" title="Move up" onclick="pmove('${kind}',${x.id},'up')">▲</button><button class="g" title="Move down" onclick="pmove('${kind}',${x.id},'down')">▼</button><input type="number" min="0" value="${x.position}" title="Priority number" onchange="setpos('${kind}',${x.id},this.value)"></div>`;
 
 // ---------- resellers / withdrawals (filtered in the browser) ----------
 function renderResellers(){const l=cache.resellers.filter(x=>(F.rs=="All"||x.status==F.rs)&&has(F.rq,x.name,x.phone,x.shop_name)),box=$("#rt");if(!box)return;
  box.innerHTML=`<p class="cnt">${l.length} of ${cache.resellers.length}</p>`+tbl(["Name","Phone","Shop","Verified","Status","Balance","Action"],l.map(x=>`<tr><td>${esc(x.name)}</td><td>${esc(x.phone)}</td><td>${esc(x.shop_name)}</td><td>${x.verified?"Yes":"No"}</td><td>${badge(x.status)}</td><td class="${x.balance<0?"neg":""}">${money(x.balance)}</td><td>${x.status=="pending"?`<button onclick="rst(${x.id},'approved')">Approve</button><button class="r" onclick="rst(${x.id},'blocked')">Reject</button>`:x.status=="approved"?`<button class="r" onclick="rst(${x.id},'blocked')">Block</button>`:`<button class="g" onclick="rst(${x.id},'approved')">Unblock</button>`}</td></tr>`),"No resellers match.")}
 function renderWd(){const l=cache.wd.filter(x=>(F.ws=="All"||x.status==F.ws)&&has(F.wq,x.reseller,x.phone,x.account)),box=$("#wt");if(!box)return;
- box.innerHTML=`<p class="cnt">${l.length} of ${cache.wd.length}</p>`+tbl(["Reseller","Amount","Send to","Status","Date","Action"],l.map(x=>`<tr><td>${esc(x.reseller)}<span class="sub">${esc(x.phone)}</span></td><td>${money(x.amount)}</td><td>${esc(x.account)}</td><td>${badge(x.status)}</td><td>${dt(x.created)}</td><td>${x.status=="Pending"?`<button onclick="wst(${x.id},'paid')">Mark as paid</button><button class="r" onclick="wst(${x.id},'reject')">Reject</button>`:"-"}</td></tr>`),"No withdrawals match.")}
+ box.innerHTML=`<p class="cnt">${l.length} of ${cache.wd.length}</p>`+tbl(["Reseller","Reseller balance","Amount","Send to","Status","Date","Action"],l.map(x=>`<tr><td>${esc(x.reseller)}<span class="sub">${esc(x.phone)}</span></td><td class="${x.balance<0?"neg":""}"><b>${money(x.balance)}</b></td><td>${money(x.amount)}</td><td>${esc(x.account)}</td><td>${badge(x.status)}</td><td>${dt(x.created)}</td><td>${x.status=="Pending"?`<button onclick="wst(${x.id},'paid')">Mark as paid</button><button class="r" onclick="wst(${x.id},'reject')">Reject</button>`:"-"}</td></tr>`),"No withdrawals match.")}
 const rst=async(id,s)=>{if(await run(()=>post(`/admin/resellers/${id}/status/`,{status:s}),"Reseller "+s))go("resellers")};
 async function wst(id,a){if(a=="reject"&&!confirm("Reject and return the amount to the reseller's balance?"))return;
  if(await run(()=>post(`/admin/withdraws/${id}/${a}/`),a=="paid"?"Marked as paid":"Rejected, amount returned"))go("wd")}
@@ -242,12 +273,14 @@ async dash(){const d=await api("/admin/dashboard/"),c=d.orders,mx=Math.max(...ST
  return `<h1>Dashboard</h1><div class="stats"><div><b>${c.Pending||0}</b>orders to confirm</div><div><b>${d.resellers_pending}</b>resellers to approve</div><div><b>${d.withdraws_pending}</b>withdrawals to review</div><div><b class="${d.reseller_balances<0?"neg":""}">${money(d.reseller_balances)}</b>reseller balances</div></div><h2>Orders by status</h2>${J(ST.map(s=>`<div class="bar"><span>${s}</span><div><i style="width:${(c[s]||0)/mx*100}%"></i></div><em>${c[s]||0}</em></div>`))}`},
 async orders(){return `<h1>Orders</h1><div class="top"><select aria-label="Filter by status" onchange="F.os=this.value;loadOrders()">${opts(["All",...ST].map(s=>[s,s]),F.os)}</select><select aria-label="Filter by area" onchange="F.oz=this.value;loadOrders()">${opts([["","All areas"],...Object.entries(ZONE)],F.oz)}</select><input type="search" aria-label="Search orders" placeholder="Search code, customer, phone, reseller, note" value="${esc(F.oq)}" oninput="F.oq=this.value;oqs()"><button class="g" onclick="loadOrders()">Refresh</button></div><div id="ot"></div>`},
 async products(){const[p,c,s]=await Promise.all([api("/admin/products/"),api("/admin/categories/"),api("/admin/subcategories/")]);cache.products=p;cache.cats=c;cache.subs=s;
- return `<h1>Products</h1><div class="top"><button onclick="pform(0)">Add product</button></div>`+
- tbl(["","Product","Category › Sub category","Supplier price","Stock","Size","Color","Photos","Visible","Action"],p.map(x=>`<tr><td>${x.photos[0]?`<img class="pt" src="${esc(x.photos[0].url)}" alt="" loading="lazy">`:""}</td><td>${esc(x.name)}<span class="sub" title="${esc(x.description)}">${x.description?short(x.description,40):'<span class="b w">no description</span>'}</span></td><td>${esc(x.category_name||"-")} › ${esc(x.subcategory_name)}</td><td>${money(x.base_price)}</td><td>${x.stock}</td><td>${esc(x.size||"-")}</td><td>${esc(x.color||"-")}</td><td>${x.photos.length}${x.photos.length<3?' <span class="b w">need 3</span>':""}</td><td>${x.active?badge("Active"):badge("Hidden")}</td><td><button class="g" onclick="pform(${x.id})">Edit</button><button class="g" onclick="ptog(${x.id})">${x.active?"Hide":"Show"}</button><button class="r" onclick="pdel(${x.id})">Delete</button></td></tr>`))},
+ return `<h1>Products</h1><div class="top"><button onclick="pform(0)">Add product</button><input type="search" aria-label="Search products" placeholder="Search name, description, size, color" value="${esc(F.pq)}" oninput="F.pq=this.value;renderProducts()"><select aria-label="Category" onchange="pcat(this.value)">${opts([["","All categories"],...c.map(x=>[x.id,x.name])],F.pc)}</select><select id="psb" aria-label="Sub category" onchange="F.ps=this.value;renderProducts()">${opts([["","All sub categories"],...s.filter(x=>!F.pc||x.category==F.pc).map(x=>[x.id,x.name])],F.ps)}</select><select aria-label="Visibility" onchange="F.pv=this.value;renderProducts()">${opts([["All","Visible and hidden"],["1","Visible"],["0","Hidden"]],F.pv)}</select><select aria-label="Stock" onchange="F.pk=this.value;renderProducts()">${opts([["All","Any stock"],["1","In stock"],["0","Out of stock"]],F.pk)}</select></div><div id="pt"></div>`},
+async cats(){const[c,s,p]=await Promise.all([api("/admin/categories/"),api("/admin/subcategories/"),api("/admin/products/")]);cache.cats=c;
+ return `<h1>Categories</h1><p class="empty" style="padding:0 0 10px">The ${c.length} categories are fixed. Use the arrows (or type a number) to choose which comes first in the app. Smaller number shows first.</p>`+
+ tbl(["Priority","Category","Sub categories","Products"],c.map(x=>`<tr><td>${posCell("categories",x)}</td><td><b>${esc(x.name)}</b></td><td>${s.filter(y=>y.category==x.id).length}</td><td>${p.filter(y=>y.category==x.id).length}</td></tr>`))},
 async subs(){const[s,c,p]=await Promise.all([api("/admin/subcategories/"),api("/admin/categories/"),api("/admin/products/")]);cache.subs=s;cache.cats=c;
- return `<h1>Sub Categories</h1><p class="empty" style="padding:0 0 10px">The ${c.length} main categories are fixed. Add the sub categories that belong under them.</p>
+ return `<h1>Sub Categories</h1><p class="empty" style="padding:0 0 10px">The ${c.length} main categories are fixed. Add the sub categories that belong under them. The arrows move a sub category inside its category.</p>
  <div class="top"><select id="ac" aria-label="Category">${opts([["","Choose category…"],...c.map(x=>[x.id,x.name])],F.ac)}</select><input id="an" maxlength="60" placeholder="New sub category name" aria-label="Sub category name" onkeydown="if(event.key=='Enter')sadd()"><button onclick="sadd()">Add sub category</button></div>`+
- tbl(["Category","Sub category","Products","Action"],s.map(x=>`<tr><td>${x.category?esc(x.category_name):'<span class="b r">choose a category</span>'}</td><td>${esc(x.name)}</td><td>${p.filter(y=>y.subcategory==x.id).length}</td><td><button class="g" onclick="sform(${x.id})">Edit</button><button class="r" onclick="sdel(${x.id})">Delete</button></td></tr>`))},
+ tbl(["Priority","Category","Sub category","Products","Action"],s.map(x=>`<tr><td>${posCell("subcategories",x)}</td><td>${x.category?esc(x.category_name):'<span class="b r">choose a category</span>'}</td><td>${esc(x.name)}</td><td>${p.filter(y=>y.subcategory==x.id).length}</td><td><button class="g" onclick="sform(${x.id})">Edit</button><button class="r" onclick="sdel(${x.id})">Delete</button></td></tr>`))},
 async resellers(){cache.resellers=await api("/admin/resellers/");
  return `<h1>Resellers</h1><div class="top"><select aria-label="Filter by status" onchange="F.rs=this.value;renderResellers()">${opts(["All","pending","approved","blocked"].map(s=>[s,s=="All"?"All statuses":s]),F.rs)}</select><input type="search" aria-label="Search resellers" placeholder="Search name, phone, shop" value="${esc(F.rq)}" oninput="F.rq=this.value;renderResellers()"></div><div id="rt"></div>`},
 async wd(){cache.wd=await api("/admin/withdraws/");
@@ -257,7 +290,7 @@ async notices(){cache.notices=await api("/admin/notices/");
  tbl(["Title","Message","Pinned","Status","Date","Action"],cache.notices.map(n=>`<tr><td>${esc(n.title)}</td><td title="${esc(n.body)}">${short(n.body,60)||"-"}</td><td>${n.pinned?badge("Pinned"):"-"}</td><td>${n.active?badge("Active"):badge("Hidden")}</td><td>${dt(n.created)}</td><td><button class="g" onclick="nform(${n.id})">Edit</button><button class="g" onclick="ntog(${n.id})">${n.active?"Hide":"Show"}</button><button class="r" onclick="ndel(${n.id})">Delete</button></td></tr>`))},
 async settings(){const s=await api("/admin/settings/");
  return `<h1>Settings</h1><div class="tw" style="padding:18px;max-width:420px"><h2 style="margin-top:0">Delivery charge</h2><label>Inside Dhaka (৳)<input id="s1" type="number" min="0" value="${s.delivery_inside}"></label><label>Sub Dhaka (৳)<input id="s4" type="number" min="0" value="${s.delivery_sub}"></label><label>Outside Dhaka (৳)<input id="s5" type="number" min="0" value="${s.delivery_outside}"></label><h2>Wallet</h2><label>Minimum withdraw (৳)<input id="s2" type="number" min="0" value="${s.min_withdraw}"></label><label>Hold days before profit is withdrawable<input id="s3" type="number" min="0" value="${s.hold_days}"></label><button onclick="ssave()">Save settings</button></div>`}};
-const AFTER={orders:loadOrders,resellers:renderResellers,wd:renderWd};
+const AFTER={orders:loadOrders,products:renderProducts,resellers:renderResellers,wd:renderWd};
 async function go(v){view=v;document.querySelectorAll("nav a").forEach(a=>a.classList.toggle("on",a.dataset.v==v));
  const m=$("main");m.innerHTML='<p class="load">Loading…</p>';
  try{const h=await V[v]();if(view==v){m.innerHTML=h;if(AFTER[v])AFTER[v]()}}catch(e){if(view==v)m.innerHTML=`<div class="err">${esc(e.message==="Failed to fetch"?"Cannot reach the server. It may be waking up (free Render plan), or CORS is blocking this page.":e.message)}<br><button style="margin-top:8px" onclick="go('${v}')">Try again</button></div>`}}
