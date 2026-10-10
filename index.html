@@ -5,23 +5,23 @@
 <style>
 :root{--c:#00bcd4;--cd:#00838f;--ink:#0b2f35;--bg:#f2fafb;--line:#d5eaed;--side:#06353c;--bad:#c93b3b;--ok:#17855c;--warn:#a87400;--mut:#4c7279}
 *{box-sizing:border-box}
-body{margin:0;font:14px/1.5 Manrope,system-ui,sans-serif;color:var(--ink);background:var(--bg)}
-.app{display:grid;grid-template-columns:210px 1fr;min-height:100vh}
+html,body{overflow-x:hidden}body{margin:0;font:14px/1.5 Manrope,system-ui,sans-serif;color:var(--ink);background:var(--bg)}img{max-width:100%}
+.app{display:grid;grid-template-columns:210px minmax(0,1fr);min-height:100vh}
 aside{background:var(--side);color:#cfeff3;padding:20px 12px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column}
 aside h3{margin:0 8px 20px;font-size:20px;font-weight:800;color:#fff}aside h3 span{color:var(--c)}
 nav a{display:block;padding:9px 12px;border-radius:8px;color:#cfeff3;cursor:pointer;margin-bottom:2px}
 nav a:hover{background:#0b4750}nav a.on{background:var(--c);color:#04282d;font-weight:600}
 .side-b{margin-top:auto;font-size:12px;padding:0 8px}.side-b a{color:#8fd8e2;display:block;margin:4px 0;cursor:pointer}
-main{padding:28px;max-width:1150px;width:100%}
+main{padding:24px 28px;width:100%;min-width:0}
 h1{font-size:24px;margin:0 0 18px}h2{font-size:16px;margin:26px 0 10px}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));border:1px solid var(--line);background:#fff;border-radius:10px}
 .stats div{padding:16px 18px;border-right:1px solid var(--line);color:var(--mut)}.stats div:last-child{border:0}
 .stats b{display:block;font-size:26px;color:var(--cd)}
 .bar{display:grid;grid-template-columns:100px 1fr 30px;gap:10px;align-items:center;margin:6px 0}
 .bar div{background:#dff3f6;border-radius:6px;height:10px}.bar i{display:block;height:10px;background:var(--c);border-radius:6px}
-.tw{overflow-x:auto;background:#fff;border:1px solid var(--line);border-radius:10px}
-table{border-collapse:collapse;width:100%;min-width:640px}
-th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+.tw{background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+table{border-collapse:collapse;width:100%}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top;overflow-wrap:anywhere}
 th{font-weight:600;color:var(--mut);background:#f7fcfd}tr:last-child td{border:0}
 button{font:inherit;font-weight:600;background:var(--c);color:#04282d;border:0;border-radius:7px;padding:6px 12px;cursor:pointer;margin:2px 4px 2px 0}
 button:hover{background:#26cbe0}button.g{background:#e3f1f3;color:var(--ink)}button.r{background:#fbe5e5;color:var(--bad)}button:disabled{opacity:.5;cursor:wait}
@@ -40,7 +40,7 @@ dialog label{display:block;margin:10px 0;font-weight:600}dialog h2{margin-top:0}
 #lerr{color:var(--bad);min-height:20px;margin-bottom:6px}
 #toast{position:fixed;bottom:20px;left:50%;transform:translate(-50%,80px);background:var(--ink);color:#fff;padding:10px 18px;border-radius:8px;transition:transform .2s;z-index:20;max-width:90vw}
 #toast.show{transform:translate(-50%,0)}#toast.bad{background:var(--bad)}
-@media(max-width:800px){.app{grid-template-columns:1fr}aside{position:static;height:auto;padding:10px}aside h3{margin-bottom:8px}nav{display:flex;overflow-x:auto}nav a{white-space:nowrap}.side-b{display:none}main{padding:16px}}
+@media(max-width:900px){.app{grid-template-columns:minmax(0,1fr)}aside{position:static;height:auto;padding:10px}aside h3{margin-bottom:8px}nav{display:flex;flex-wrap:wrap;gap:4px}nav a{margin:0}.side-b{display:none}main{padding:16px}table,thead,tbody,tr,td{display:block}thead{display:none}tr{padding:6px 0;border-bottom:8px solid var(--bg)}td{display:flex;gap:10px;justify-content:space-between;border:0;padding:5px 12px}td::before{content:attr(data-l);color:var(--mut);font-weight:600;flex:none}td[data-l='']::before{content:none}}
 @media(prefers-reduced-motion:reduce){#toast{transition:none}}
 .neg{color:var(--bad);font-weight:600}.sub{display:block;color:var(--mut);font-size:12px}
 .th{position:relative;width:76px;height:76px;border-radius:10px;overflow:hidden;border:1px solid var(--line);background:#eef7f8;flex:none}
@@ -49,7 +49,7 @@ dialog label{display:block;margin:10px 0;font-weight:600}dialog h2{margin-top:0}
 .photos{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0}.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .top input[type=search]{min-width:240px}.cnt{color:var(--mut);font-size:12px;margin:-4px 0 8px}
 dialog label small{font-weight:400;color:var(--mut)}dialog textarea{resize:vertical}
-.ol{display:grid;grid-template-columns:repeat(auto-fill,minmax(430px,1fr));gap:14px}
+.ol{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;max-width:920px}
 .oc{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
 .oh{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:11px 14px;background:#f7fcfd;border-bottom:1px solid var(--line)}
 .oh b{font-size:16px}.oh .dt{margin-left:auto;color:var(--mut);font-size:12px}
@@ -61,7 +61,7 @@ dialog label small{font-weight:400;color:var(--mut)}dialog textarea{resize:verti
 .tag{display:inline-block;background:#e8f7f1;color:var(--ok);border-radius:6px;padding:1px 8px;font-size:12px;font-weight:600;margin:3px 6px 0 0}.tag.c{background:#e6f4fb;color:var(--cd)}
 .of{margin-top:auto;border-top:1px solid var(--line);padding:10px 14px;display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center}
 .mn span{display:block;font-size:11px;color:var(--mut)}.mn b{font-size:14px}.acts{margin-left:auto}
-.pos{display:flex;align-items:center;gap:4px}.pos button{padding:2px 8px;margin:0}.pos input{width:62px;padding:4px 6px}
+.pn{width:68px;padding:5px 6px;text-align:center}.crumb{margin:-6px 0 14px;color:var(--mut)}.crumb a{color:var(--cd);cursor:pointer;font-weight:600}.crumb b{color:var(--ink)}.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}button.tile{background:#fff;color:var(--ink);text-align:left;border:1px solid var(--line);border-radius:12px;padding:16px;margin:0;font-weight:400}button.tile:hover{border-color:var(--c);background:#f3fcfd}button.tile b{display:block;font-size:15px}button.tile span{color:var(--mut);font-size:12px}a.lk{color:var(--cd);font-weight:700;cursor:pointer;text-decoration:none}a.lk:hover{text-decoration:underline}
 .hint{font-size:12px;color:var(--mut);margin:-4px 0 8px}
 </style></head>
 <body>
@@ -71,7 +71,7 @@ dialog label small{font-weight:400;color:var(--mut)}dialog textarea{resize:verti
 <input id="lp" type="password" placeholder="Password" autocomplete="current-password" aria-label="Password" required>
 <button id="lb" style="width:100%;padding:9px">Log in</button></form></div>
 <div class="app"><aside><h3>Easy<span>Drop</span></h3><nav>
-<a data-v="dash">Dashboard</a><a data-v="orders">Orders</a><a data-v="products">Products</a><a data-v="cats">Categories</a><a data-v="subs">Sub Categories</a>
+<a data-v="dash">Dashboard</a><a data-v="orders">Orders</a><a data-v="products">Products</a><a data-v="cats">Categories</a>
 <a data-v="resellers">Resellers</a><a data-v="wd">Withdrawals</a><a data-v="notices">Notices</a><a data-v="settings">Settings</a></nav>
 <div class="side-b"><a id="dj" target="_blank" rel="noopener">Django admin</a><a id="lo">Log out</a></div></aside>
 <main></main></div>
@@ -89,7 +89,8 @@ const store={get:k=>{try{return localStorage.getItem(k)||""}catch{return ""}},se
 const debounce=(f,ms)=>{let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>f(...a),ms)}};
 let view="dash",dirty=false;
 const cache={cats:[],subs:[],orders:[],products:[],resellers:[],wd:[],notices:[],newFiles:[]};
-const F={os:"All",oz:"",oq:"",rs:"All",rq:"",ws:"All",wq:"",pq:"",pc:"",ps:"",pv:"All",pk:"All"};
+const F={os:"All",oz:"",oq:"",rs:"All",rq:"",ws:"All",wq:"",gq:"",sq:"",sv:"All",sk:"All"};
+const S={cats:{cat:0,sub:0},prod:{cat:0,sub:0}}; // where the admin is inside Category > Sub category > Products (one per menu item)
 
 // ---------- API ----------
 async function raw(path,o={},tok){
@@ -121,12 +122,12 @@ $("#lf").onsubmit=async e=>{e.preventDefault();const b=$("#lb");b.disabled=1;b.t
  b.disabled=0;b.textContent="Log in"};
 function logout(){store.set("at","");store.set("rt","");$("#login").style.display="grid"}
 $("#lo").onclick=logout;
-document.querySelectorAll("nav a").forEach(a=>a.onclick=()=>go(a.dataset.v));
+document.querySelectorAll("nav a").forEach(a=>a.onclick=()=>{if(a.dataset.v=="cats")S.cats={cat:0,sub:0};if(a.dataset.v=="products")S.prod={cat:0,sub:0};go(a.dataset.v)});
 $("#dlg").addEventListener("close",()=>{if(dirty){dirty=false;go(view)}});
 
 // ---------- helpers ----------
 const badge=(s,t)=>`<span class="b ${{Pending:"w",pending:"w",Confirmed:"i",Shipped:"i",NeedsReview:"w",Delivered:"g",approved:"g",Paid:"g",Active:"g",Pinned:"i"}[s]||"r"}">${esc(t||s)}</span>`;
-const tbl=(h,rows,empty)=>rows.length?`<div class="tw"><table><thead><tr>${J(h.map(x=>`<th>${x}</th>`))}</tr></thead><tbody>${J(rows)}</tbody></table></div>`:`<p class="empty">${empty||"Nothing here yet."}</p>`;
+const tbl=(h,rows,empty)=>rows.length?`<div class="tw"><table><thead><tr>${J(h.map(x=>`<th>${x}</th>`))}</tr></thead><tbody>${J(rows.map(r=>{let i=0;return r.replace(/<td/g,()=>`<td data-l="${esc(h[i++]||"")}"`)}))}</tbody></table></div>`:`<p class="empty">${empty||"Nothing here yet."}</p>`;
 const itemsTxt=o=>o.items.map(i=>`${esc(i.product)} ×${i.qty}`).join(", ");
 const lineHtml=i=>`<div class="ln"><div><b>${esc(i.product||"(deleted product)")}</b> <span class="q">×${i.qty}</span>${i.category||i.subcategory?`<div class="mt">${esc(i.category||"-")} › ${esc(i.subcategory||"-")}</div>`:""}${i.size||i.color?`<div>${i.size?`<span class="tag">Size: ${esc(i.size)}</span>`:""}${i.color?`<span class="tag c">Color: ${esc(i.color)}</span>`:""}</div>`:""}</div><div class="lp">${money(i.sell*i.qty)}<div class="mt">${money(i.sell)} each</div></div></div>`;
 function orderCard(o){return `<div class="oc"><div class="oh"><b>${esc(o.code)}</b>${badge(o.status)}<span class="chip">${esc(ZONE[o.zone]||o.zone)}</span><span class="dt">${dt(o.created)}</span></div>
@@ -179,7 +180,7 @@ const oqs=debounce(()=>loadOrders(),400);
 function subOptions(sel){const by={};cache.subs.forEach(s=>(by[s.category||0]=by[s.category||0]||[]).push(s));
  let h=J(cache.cats.filter(c=>by[c.id]).map(c=>`<optgroup label="${esc(c.name)}">${J(by[c.id].map(s=>`<option value="${s.id}" ${s.id==sel?"selected":""}>${esc(s.name)}</option>`))}</optgroup>`));
  if(by[0])h+=`<optgroup label="No category yet (fix it in Sub Categories)">${J(by[0].map(s=>`<option value="${s.id}" ${s.id==sel?"selected":""}>${esc(s.name)}</option>`))}</optgroup>`;return h}
-function pform(id){const p=cache.products.find(x=>x.id==id)||{name:"",description:"",subcategory:"",base_price:"",in_stock:true,position:"",size:"",color:"",video_url:"",active:true,photos:[]};
+function pform(id,preSub){const p=cache.products.find(x=>x.id==id)||{name:"",description:"",subcategory:preSub||"",base_price:"",in_stock:true,position:"",size:"",color:"",video_url:"",active:true,photos:[]};
  if(!cache.subs.length){toast("Add a sub category first (Sub Categories page)",1);return}
  cache.newFiles=[];
  $("#dlg").innerHTML=`<h2>${id?"Edit":"Add"} product</h2><label>Name<input id="fn" maxlength="120" value="${esc(p.name)}"></label>
@@ -189,7 +190,7 @@ function pform(id){const p=cache.products.find(x=>x.id==id)||{name:"",descriptio
  <div class="two"><label>Size <small>(optional)</small><input id="fz" maxlength="100" placeholder="e.g. M, L, XL" value="${esc(p.size)}"></label><label>Color <small>(optional)</small><input id="fk" maxlength="100" placeholder="e.g. Black, White" value="${esc(p.color)}"></label></div>
  <p class="hint">Separate options with commas. Every option becomes a choice the reseller must pick one of. Leave empty if there is nothing to choose.</p>
  <label>YouTube link <small>(optional)</small><input id="fv" type="url" value="${esc(p.video_url)}" placeholder="https://www.youtube.com/watch?v=..."></label>
- <label>Priority <small>(optional, smaller number shows first inside its sub category)</small><input id="fp" type="number" min="0" value="${esc(p.position||"")}"></label>
+ <label>Priority number <small>(optional, 1 = first inside its sub category; if the number is taken, the others move down by one)</small><input id="fp" type="number" min="0" value="${esc(p.position||"")}"></label>
  <label><input id="fa" type="checkbox" style="width:auto" ${p.active?"checked":""}> Visible to resellers</label>
  <label>Photos <small id="pc"></small></label><div class="photos" id="ph"></div>
  <input id="pf" type="file" accept="image/*" multiple onchange="${id?`pup(${id})`:"pnew()"}">
@@ -222,31 +223,40 @@ async function psave(id){const b={name:$("#fn").value.trim(),subcategory:+$("#fc
  const p=await run(()=>api(id?`/admin/products/${id}/`:"/admin/products/",{method:id?"PATCH":"POST",body:b}),"Product saved");
  if(!p||p===true){bt.disabled=false;return}
  if(!id&&cache.newFiles.length){toast("Uploading photos…");const u=await run(()=>upload(p.id,cache.newFiles),"Product and photos saved");if(!u)toast("Product saved, but the photos failed. Open Edit and add them again.",1)}
- dirty=false;$("#dlg").close();go("products")}
+ dirty=false;$("#dlg").close();go(view)}
 async function pdel(id){if(!confirm("Delete this product?\n\nIt disappears from the product list and from carts. Orders already placed with it stay as they are and can still be tracked."))return;
- if(await run(()=>del(`/admin/products/${id}/`),"Product deleted"))go("products")}
+ if(await run(()=>del(`/admin/products/${id}/`),"Product deleted"))go(view)}
 async function ptog(id){const p=cache.products.find(x=>x.id==id);
- if(await run(()=>patch(`/admin/products/${id}/`,{active:!p.active}),p.active?"Hidden from resellers":"Visible to resellers"))go("products")}
-function renderProducts(){const box=$("#pt");if(!box)return;
- const l=cache.products.filter(x=>has(F.pq,x.name,x.description,x.category_name,x.subcategory_name,x.size,x.color)&&(!F.pc||x.category==F.pc)&&(!F.ps||x.subcategory==F.ps)&&(F.pv=="All"||(F.pv=="1")==x.active)&&(F.pk=="All"||(F.pk=="1")==x.in_stock));
- box.innerHTML=`<p class="cnt">${l.length} of ${cache.products.length}${F.pq||F.pc||F.ps||F.pv!="All"||F.pk!="All"?"":" · the ▲▼ arrows move a product inside its sub category"}</p>`+
- tbl(["Priority","","Product","Category › Sub category","Supplier price","Stock","Size","Color","Photos","Visible","Action"],l.map(x=>`<tr><td><div class="pos"><button class="g" title="Move up" onclick="pmove('products',${x.id},'up')">▲</button><button class="g" title="Move down" onclick="pmove('products',${x.id},'down')">▼</button></div></td><td>${x.photos[0]?`<img class="pt" src="${esc(x.photos[0].url)}" alt="" loading="lazy">`:""}</td><td>${esc(x.name)}<span class="sub" title="${esc(x.description)}">${x.description?short(x.description,40):'<span class="b w">no description</span>'}</span></td><td>${esc(x.category_name||"-")} › ${esc(x.subcategory_name)}</td><td>${money(x.base_price)}</td><td>${x.in_stock?badge("Active","In stock"):badge("Out","Out of stock")}</td><td>${esc(x.size||"-")}</td><td>${esc(x.color||"-")}</td><td>${x.photos.length}${x.photos.length<1?' <span class="b w">need 1</span>':""}</td><td>${x.active?badge("Active"):badge("Hidden")}</td><td><button class="g" onclick="pform(${x.id})">Edit</button><button class="g" onclick="ptog(${x.id})">${x.active?"Hide":"Show"}</button><button class="r" onclick="pdel(${x.id})">Delete</button></td></tr>`),"No products match.")}
-function pcat(v){F.pc=v;F.ps="";const sel=$("#psb");if(sel)sel.innerHTML=opts([["","All sub categories"],...cache.subs.filter(s=>!v||s.category==v).map(s=>[s.id,s.name])],"");renderProducts()}
-// priority: arrows swap with the neighbour, the number sets it directly (smaller shows first)
-async function pmove(kind,id,d){if(await run(()=>post(`/admin/${kind}/${id}/move/`,{direction:d})))go(view)}
-async function setpos(kind,id,v){if(await run(()=>patch(`/admin/${kind}/${id}/`,{position:Math.max(0,parseInt(v||0,10)||0)}),"Priority saved"))go(view)}
-
-// ---------- sub categories ----------
+ if(await run(()=>patch(`/admin/products/${id}/`,{active:!p.active}),p.active?"Hidden from resellers":"Visible to resellers"))go(view)}
+// ---------- Category > Sub category > Products ----------
+const st=()=>view=="cats"?S.cats:S.prod;
+function nav(cat,sub){const t=st();t.cat=cat||0;t.sub=sub||0;go(view)}
+async function catalog(){const[c,s,p]=await Promise.all([api("/admin/categories/"),api("/admin/subcategories/"),api("/admin/products/")]);cache.cats=c;cache.subs=s;cache.products=p;return{c,s,p}}
+const crumbs=(root,cat,sub)=>`<div class="crumb"><a onclick="nav(0,0)">${root}</a>${cat?` › ${sub?`<a onclick="nav(${cat.id},0)">${esc(cat.name)}</a>`:`<b>${esc(cat.name)}</b>`}`:""}${sub?` › <b>${esc(sub.name)}</b>`:""}</div>`;
+const posInput=(kind,x,min)=>`<input class="pn" type="number" min="${min}" value="${x.position||""}" placeholder="-" title="Priority number (1 = first). If the number is taken, the others move down by one." onchange="setpos('${kind}',${x.id},this.value)">`;
+async function setpos(kind,id,v){const n=parseInt(v||0,10)||0;if(await run(()=>patch(`/admin/${kind}/${id}/`,{position:Math.max(0,n)}),"Priority saved"))go(view)}
+const HINT='<p class="hint">Priority: type a number (1 = shows first). If that number is already used, the item you changed takes it and the others move down by one. Empty = after the numbered ones.</p>';
 function sform(id){const s=cache.subs.find(x=>x.id==id);if(!s)return;
- $("#dlg").innerHTML=`<h2>Edit sub category</h2><label>Category<select id="sc">${opts([["","Choose a category…"],...cache.cats.map(c=>[c.id,c.name])],s.category)}</select></label><label>Name<input id="sn" maxlength="60" value="${esc(s.name)}"></label><label>Priority <small>(smaller shows first)</small><input id="sp" type="number" min="0" value="${esc(s.position)}"></label>
+ $("#dlg").innerHTML=`<h2>Edit sub category</h2><label>Category<select id="sc">${opts([["","Choose a category…"],...cache.cats.map(c=>[c.id,c.name])],s.category)}</select></label><label>Name<input id="sn" maxlength="60" value="${esc(s.name)}"></label><label>Priority number <small>(optional)</small><input id="sp" type="number" min="0" value="${esc(s.position||"")}"></label>
  <div class="row"><button class="g" onclick="$('#dlg').close()">Cancel</button><button onclick="ssub(${id})">Save</button></div>`;$("#dlg").showModal()}
 async function ssub(id){const c=+$("#sc").value,n=$("#sn").value.trim();if(!c)return toast("Choose a category",1);if(!n)return toast("Enter a name",1);
- if(await run(()=>patch(`/admin/subcategories/${id}/`,{name:n,category:c,position:Math.max(0,parseInt($("#sp").value||0,10)||0)}),"Sub category saved")){$("#dlg").close();go("subs")}}
-async function sadd(){const c=+$("#ac").value,n=$("#an").value.trim();if(!c)return toast("Choose a category first",1);if(!n)return toast("Enter a sub category name",1);
- if(await run(()=>post("/admin/subcategories/",{name:n,category:c}),"Sub category added")){F.ac=c;go("subs")}}
+ const b={name:n,category:c};if($("#sp").value!=="")b.position=parseInt($("#sp").value,10);
+ if(await run(()=>patch(`/admin/subcategories/${id}/`,b),"Sub category saved")){$("#dlg").close();go(view)}}
+async function sadd(cat){const n=$("#an").value.trim();if(!n)return toast("Enter a sub category name",1);
+ if(await run(()=>post("/admin/subcategories/",{name:n,category:cat}),"Sub category added"))go(view)}
 async function sdel(id){if(!confirm("Delete this sub category?"))return;
- if(await run(()=>del(`/admin/subcategories/${id}/`),"Sub category deleted"))go("subs")}
-const posCell=(kind,x)=>`<div class="pos"><button class="g" title="Move up" onclick="pmove('${kind}',${x.id},'up')">▲</button><button class="g" title="Move down" onclick="pmove('${kind}',${x.id},'down')">▼</button><input type="number" min="0" value="${x.position}" title="Priority number" onchange="setpos('${kind}',${x.id},this.value)"></div>`;
+ if(await run(()=>del(`/admin/subcategories/${id}/`),"Sub category deleted"))go(view)}
+const optTxt=x=>x.size||x.color?`${x.size?`Size: ${esc(x.size)}`:""}${x.size&&x.color?"<br>":""}${x.color?`Color: ${esc(x.color)}`:""}`:"-";
+function prodTable(list,showCat){const H=["Priority","Product",...(showCat?["Category › Sub category"]:[]),"Supplier price","Stock","Options","Photos","Visible","Action"];
+ return tbl(H,list.map(x=>`<tr><td>${posInput("products",x,0)}</td><td><div style="display:flex;gap:8px;align-items:flex-start">${x.photos[0]?`<img class="pt" src="${esc(x.photos[0].url)}" alt="" loading="lazy">`:""}<div>${esc(x.name)}<span class="sub" title="${esc(x.description)}">${x.description?short(x.description,60):'<span class="b w">no description</span>'}</span></div></div></td>${showCat?`<td>${esc(x.category_name||"-")} › ${esc(x.subcategory_name)}</td>`:""}<td>${money(x.base_price)}</td><td>${x.in_stock?badge("Active","In stock"):badge("Out","Out of stock")}</td><td>${optTxt(x)}</td><td>${x.photos.length}${x.photos.length<1?' <span class="b w">need 1</span>':""}</td><td>${x.active?badge("Active"):badge("Hidden")}</td><td><button class="g" onclick="pform(${x.id})">Edit</button><button class="g" onclick="ptog(${x.id})">${x.active?"Hide":"Show"}</button><button class="r" onclick="pdel(${x.id})">Delete</button></td></tr>`),"No products here yet.")}
+// products of one sub category (shared by the Products and Categories menus)
+function subLevel(root,cat,sub){return `<h1>${esc(sub.name)}</h1>${crumbs(root,cat,sub)}<div class="top"><button onclick="pform(0,${sub.id})">Add product</button><input type="search" aria-label="Search products" placeholder="Search name, description, size, color" value="${esc(F.sq)}" oninput="F.sq=this.value;renderSub()"><select aria-label="Visibility" onchange="F.sv=this.value;renderSub()">${opts([["All","Visible and hidden"],["1","Visible"],["0","Hidden"]],F.sv)}</select><select aria-label="Stock" onchange="F.sk=this.value;renderSub()">${opts([["All","Any stock"],["1","In stock"],["0","Out of stock"]],F.sk)}</select></div>${HINT}<div id="pt"></div>`}
+function renderSub(){const box=$("#pt"),id=st().sub;if(!box||!id)return;const all=cache.products.filter(x=>x.subcategory==id);
+ const l=all.filter(x=>has(F.sq,x.name,x.description,x.size,x.color)&&(F.sv=="All"||(F.sv=="1")==x.active)&&(F.sk=="All"||(F.sk=="1")==x.in_stock));
+ box.innerHTML=`<p class="cnt">${l.length} of ${all.length}</p>`+prodTable(l,false)}
+function renderGlobal(){const box=$("#pt");if(!box||st().cat||view!="products")return;const q=F.gq.trim();
+ box.innerHTML=q?`<p class="cnt">Search results</p>`+prodTable(cache.products.filter(x=>has(q,x.name,x.description,x.category_name,x.subcategory_name,x.size,x.color)),true):`<div class="tiles">${J(cache.cats.map(c=>`<button class="tile" onclick="nav(${c.id},0)"><b>${esc(c.name)}</b><span>${cache.subs.filter(s=>s.category==c.id).length} sub categories · ${cache.products.filter(p=>p.category==c.id).length} products</span></button>`))}</div>`}
+const AFTER_SUB=()=>{if(st().sub)renderSub();else renderGlobal()};
 
 // ---------- resellers / withdrawals (filtered in the browser) ----------
 function renderResellers(){const l=cache.resellers.filter(x=>(F.rs=="All"||x.status==F.rs)&&has(F.rq,x.name,x.phone,x.shop_name)),box=$("#rt");if(!box)return;
@@ -272,15 +282,20 @@ const V={
 async dash(){const d=await api("/admin/dashboard/"),c=d.orders,mx=Math.max(...ST.map(s=>c[s]||0),1);
  return `<h1>Dashboard</h1><div class="stats"><div><b>${c.Pending||0}</b>orders to confirm</div><div><b>${d.resellers_pending}</b>resellers to approve</div><div><b>${d.withdraws_pending}</b>withdrawals to review</div><div><b class="${d.reseller_balances<0?"neg":""}">${money(d.reseller_balances)}</b>reseller balances</div></div><h2>Orders by status</h2>${J(ST.map(s=>`<div class="bar"><span>${s}</span><div><i style="width:${(c[s]||0)/mx*100}%"></i></div><em>${c[s]||0}</em></div>`))}`},
 async orders(){return `<h1>Orders</h1><div class="top"><select aria-label="Filter by status" onchange="F.os=this.value;loadOrders()">${opts(["All",...ST].map(s=>[s,s]),F.os)}</select><select aria-label="Filter by area" onchange="F.oz=this.value;loadOrders()">${opts([["","All areas"],...Object.entries(ZONE)],F.oz)}</select><input type="search" aria-label="Search orders" placeholder="Search code, customer, phone, reseller, note" value="${esc(F.oq)}" oninput="F.oq=this.value;oqs()"><button class="g" onclick="loadOrders()">Refresh</button></div><div id="ot"></div>`},
-async products(){const[p,c,s]=await Promise.all([api("/admin/products/"),api("/admin/categories/"),api("/admin/subcategories/")]);cache.products=p;cache.cats=c;cache.subs=s;
- return `<h1>Products</h1><div class="top"><button onclick="pform(0)">Add product</button><input type="search" aria-label="Search products" placeholder="Search name, description, size, color" value="${esc(F.pq)}" oninput="F.pq=this.value;renderProducts()"><select aria-label="Category" onchange="pcat(this.value)">${opts([["","All categories"],...c.map(x=>[x.id,x.name])],F.pc)}</select><select id="psb" aria-label="Sub category" onchange="F.ps=this.value;renderProducts()">${opts([["","All sub categories"],...s.filter(x=>!F.pc||x.category==F.pc).map(x=>[x.id,x.name])],F.ps)}</select><select aria-label="Visibility" onchange="F.pv=this.value;renderProducts()">${opts([["All","Visible and hidden"],["1","Visible"],["0","Hidden"]],F.pv)}</select><select aria-label="Stock" onchange="F.pk=this.value;renderProducts()">${opts([["All","Any stock"],["1","In stock"],["0","Out of stock"]],F.pk)}</select></div><div id="pt"></div>`},
-async cats(){const[c,s,p]=await Promise.all([api("/admin/categories/"),api("/admin/subcategories/"),api("/admin/products/")]);cache.cats=c;
- return `<h1>Categories</h1><p class="empty" style="padding:0 0 10px">The ${c.length} categories are fixed. Use the arrows (or type a number) to choose which comes first in the app. Smaller number shows first.</p>`+
- tbl(["Priority","Category","Sub categories","Products"],c.map(x=>`<tr><td>${posCell("categories",x)}</td><td><b>${esc(x.name)}</b></td><td>${s.filter(y=>y.category==x.id).length}</td><td>${p.filter(y=>y.category==x.id).length}</td></tr>`))},
-async subs(){const[s,c,p]=await Promise.all([api("/admin/subcategories/"),api("/admin/categories/"),api("/admin/products/")]);cache.subs=s;cache.cats=c;
- return `<h1>Sub Categories</h1><p class="empty" style="padding:0 0 10px">The ${c.length} main categories are fixed. Add the sub categories that belong under them. The arrows move a sub category inside its category.</p>
- <div class="top"><select id="ac" aria-label="Category">${opts([["","Choose category…"],...c.map(x=>[x.id,x.name])],F.ac)}</select><input id="an" maxlength="60" placeholder="New sub category name" aria-label="Sub category name" onkeydown="if(event.key=='Enter')sadd()"><button onclick="sadd()">Add sub category</button></div>`+
- tbl(["Priority","Category","Sub category","Products","Action"],s.map(x=>`<tr><td>${posCell("subcategories",x)}</td><td>${x.category?esc(x.category_name):'<span class="b r">choose a category</span>'}</td><td>${esc(x.name)}</td><td>${p.filter(y=>y.subcategory==x.id).length}</td><td><button class="g" onclick="sform(${x.id})">Edit</button><button class="r" onclick="sdel(${x.id})">Delete</button></td></tr>`))},
+async products(){const{c,s}=await catalog(),t=S.prod,cat=c.find(x=>x.id==t.cat);
+ if(!cat){t.cat=0;t.sub=0;return `<h1>Products</h1><div class="top"><input type="search" aria-label="Search all products" placeholder="Search all products (name, description, category, size, color)" value="${esc(F.gq)}" style="min-width:320px" oninput="F.gq=this.value;renderGlobal()"></div><div id="pt"></div>`}
+ const sub=s.find(x=>x.id==t.sub&&x.category==cat.id);
+ if(!sub){t.sub=0;const subs=s.filter(x=>x.category==cat.id);
+  return `<h1>${esc(cat.name)}</h1>${crumbs("Products",cat,null)}${subs.length?`<div class="tiles">${J(subs.map(x=>`<button class="tile" onclick="nav(${cat.id},${x.id})"><b>${esc(x.name)}</b><span>${cache.products.filter(p=>p.subcategory==x.id).length} products</span></button>`))}</div>`:`<p class="empty">No sub categories here yet. Add them in the Categories menu.</p>`}`}
+ return subLevel("Products",cat,sub)},
+async cats(){const{c,s,p}=await catalog(),t=S.cats,cat=c.find(x=>x.id==t.cat);
+ if(!cat){t.cat=0;t.sub=0;return `<h1>Categories</h1><p class="empty" style="padding:0 0 6px">The ${c.length} categories are fixed. Click a category to see and manage its sub categories.</p>${HINT}`+
+  tbl(["Priority","Category","Sub categories","Products"],c.map(x=>`<tr><td>${posInput("categories",x,1)}</td><td><a class="lk" onclick="nav(${x.id},0)">${esc(x.name)}</a></td><td>${s.filter(y=>y.category==x.id).length}</td><td>${p.filter(y=>y.category==x.id).length}</td></tr>`))}
+ const sub=s.find(x=>x.id==t.sub&&x.category==cat.id);
+ if(!sub){t.sub=0;const subs=s.filter(x=>x.category==cat.id);
+  return `<h1>${esc(cat.name)}</h1>${crumbs("Categories",cat,null)}<div class="top"><input id="an" maxlength="60" placeholder="New sub category in ${esc(cat.name)}" aria-label="Sub category name" style="min-width:260px" onkeydown="if(event.key=='Enter')sadd(${cat.id})"><button onclick="sadd(${cat.id})">Add sub category</button></div>${HINT}`+
+   tbl(["Priority","Sub category","Products","Action"],subs.map(x=>`<tr><td>${posInput("subcategories",x,0)}</td><td><a class="lk" onclick="nav(${cat.id},${x.id})">${esc(x.name)}</a></td><td>${p.filter(y=>y.subcategory==x.id).length}</td><td><button class="g" onclick="sform(${x.id})">Edit</button><button class="r" onclick="sdel(${x.id})">Delete</button></td></tr>`),"No sub categories yet. Add the first one above.")}
+ return subLevel("Categories",cat,sub)},
 async resellers(){cache.resellers=await api("/admin/resellers/");
  return `<h1>Resellers</h1><div class="top"><select aria-label="Filter by status" onchange="F.rs=this.value;renderResellers()">${opts(["All","pending","approved","blocked"].map(s=>[s,s=="All"?"All statuses":s]),F.rs)}</select><input type="search" aria-label="Search resellers" placeholder="Search name, phone, shop" value="${esc(F.rq)}" oninput="F.rq=this.value;renderResellers()"></div><div id="rt"></div>`},
 async wd(){cache.wd=await api("/admin/withdraws/");
@@ -290,7 +305,7 @@ async notices(){cache.notices=await api("/admin/notices/");
  tbl(["Title","Message","Pinned","Status","Date","Action"],cache.notices.map(n=>`<tr><td>${esc(n.title)}</td><td title="${esc(n.body)}">${short(n.body,60)||"-"}</td><td>${n.pinned?badge("Pinned"):"-"}</td><td>${n.active?badge("Active"):badge("Hidden")}</td><td>${dt(n.created)}</td><td><button class="g" onclick="nform(${n.id})">Edit</button><button class="g" onclick="ntog(${n.id})">${n.active?"Hide":"Show"}</button><button class="r" onclick="ndel(${n.id})">Delete</button></td></tr>`))},
 async settings(){const s=await api("/admin/settings/");
  return `<h1>Settings</h1><div class="tw" style="padding:18px;max-width:420px"><h2 style="margin-top:0">Delivery charge</h2><label>Inside Dhaka (৳)<input id="s1" type="number" min="0" value="${s.delivery_inside}"></label><label>Sub Dhaka (৳)<input id="s4" type="number" min="0" value="${s.delivery_sub}"></label><label>Outside Dhaka (৳)<input id="s5" type="number" min="0" value="${s.delivery_outside}"></label><h2>Wallet</h2><label>Minimum withdraw (৳)<input id="s2" type="number" min="0" value="${s.min_withdraw}"></label><label>Hold days before profit is withdrawable<input id="s3" type="number" min="0" value="${s.hold_days}"></label><button onclick="ssave()">Save settings</button></div>`}};
-const AFTER={orders:loadOrders,products:renderProducts,resellers:renderResellers,wd:renderWd};
+const AFTER={orders:loadOrders,products:AFTER_SUB,cats:AFTER_SUB,resellers:renderResellers,wd:renderWd};
 async function go(v){view=v;document.querySelectorAll("nav a").forEach(a=>a.classList.toggle("on",a.dataset.v==v));
  const m=$("main");m.innerHTML='<p class="load">Loading…</p>';
  try{const h=await V[v]();if(view==v){m.innerHTML=h;if(AFTER[v])AFTER[v]()}}catch(e){if(view==v)m.innerHTML=`<div class="err">${esc(e.message==="Failed to fetch"?"Cannot reach the server. It may be waking up (free Render plan), or CORS is blocking this page.":e.message)}<br><button style="margin-top:8px" onclick="go('${v}')">Try again</button></div>`}}
